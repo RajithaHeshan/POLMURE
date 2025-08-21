@@ -3,6 +3,7 @@ import SwiftUI
 struct LoginView: View {
 
     @StateObject private var viewModel = LoginViewModel()
+    @State private var isShowingSignUp = false
 
     var body: some View {
         NavigationStack {
@@ -49,10 +50,9 @@ struct LoginView: View {
                 Divider()
                     .padding(.vertical, 15)
 
-                // Updated "Sign in with Google" button
                 Button(action: viewModel.signInWithGoogle) {
                     HStack {
-                        Image("google") // Your custom icon from assets
+                        Image("google")
                             .resizable()
                             .scaledToFit()
                             .frame(width: 22, height: 22)
@@ -69,8 +69,10 @@ struct LoginView: View {
                 
                 HStack {
                     Text("Don't have an account?")
-                    Button("Sign Up", action: viewModel.createAccount)
-                        .fontWeight(.semibold)
+                    Button("Sign Up") {
+                        isShowingSignUp.toggle()
+                    }
+                    .fontWeight(.semibold)
                 }
                 .font(.subheadline)
 
@@ -78,6 +80,9 @@ struct LoginView: View {
             .padding(30)
             .navigationTitle("Log In")
             .navigationBarHidden(true)
+            .sheet(isPresented: $isShowingSignUp) {
+                SignUpView()
+            }
         }
     }
 }

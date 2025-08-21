@@ -45,6 +45,26 @@
 			path = POLMUREUITests;
 			sourceTree = "<group>";
 		};
+		39D9C7092E56F9D300AC50A8 /* View */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = View;
+			sourceTree = "<group>";
+		};
+		39D9C70A2E56F9E100AC50A8 /* VIewModel */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = VIewModel;
+			sourceTree = "<group>";
+		};
+		39D9C70B2E56F9F600AC50A8 /* Model */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Model;
+			sourceTree = "<group>";
+		};
+		39D9C70C2E56FA0100AC50A8 /* Services */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Services;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,6 +95,10 @@
 		39D9C6D62E56F98000AC50A8 = {
 			isa = PBXGroup;
 			children = (
+				39D9C70C2E56FA0100AC50A8 /* Services */,
+				39D9C70B2E56F9F600AC50A8 /* Model */,
+				39D9C70A2E56F9E100AC50A8 /* VIewModel */,
+				39D9C7092E56F9D300AC50A8 /* View */,
 				39D9C6E12E56F98000AC50A8 /* POLMURE */,
 				39D9C6EF2E56F98300AC50A8 /* POLMURETests */,
 				39D9C6F92E56F98300AC50A8 /* POLMUREUITests */,
@@ -109,6 +133,10 @@
 			);
 			fileSystemSynchronizedGroups = (
 				39D9C6E12E56F98000AC50A8 /* POLMURE */,
+				39D9C7092E56F9D300AC50A8 /* View */,
+				39D9C70A2E56F9E100AC50A8 /* VIewModel */,
+				39D9C70B2E56F9F600AC50A8 /* Model */,
+				39D9C70C2E56FA0100AC50A8 /* Services */,
 			);
 			name = POLMURE;
 			packageProductDependencies = (

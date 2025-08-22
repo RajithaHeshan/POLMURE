@@ -10,6 +10,7 @@ class SignUpViewModel: ObservableObject {
     @Published var email = ""
     @Published var password = ""
     @Published var confirmPassword = ""
+    @Published var errorMessage: String?
     
     private let authService = AuthenticationService()
     private let db = Firestore.firestore()
@@ -20,13 +21,15 @@ class SignUpViewModel: ObservableObject {
     }
 
     func signUp() {
-        guard !username.isEmpty, !fullName.isEmpty, !email.isEmpty else {
-            print("Error: All fields must be filled out.")
+        errorMessage = nil
+        
+        guard !username.isEmpty, !fullName.isEmpty, !email.isEmpty, !password.isEmpty else {
+            errorMessage = "Please fill out all fields."
             return
         }
         
         guard password == confirmPassword else {
-            print("Error: Passwords do not match.")
+            errorMessage = "Passwords do not match. Please try again."
             return
         }
         
@@ -38,7 +41,7 @@ class SignUpViewModel: ObservableObject {
                 print("Successfully created user and saved data to Firestore.")
                 
             } catch {
-                print("Error during sign up: \(error.localizedDescription)")
+                errorMessage = error.localizedDescription
             }
         }
     }

@@ -1,9 +1,15 @@
 import SwiftUI
+import MapKit
 
 struct SignUpView: View {
     
     @StateObject private var viewModel = SignUpViewModel()
-    @Environment(\.dismiss) var dismiss
+    @State private var showAlert = false
+    
+    @State private var cameraPosition: MapCameraPosition = .region(MKCoordinateRegion(
+        center: CLLocationCoordinate2D(latitude: 7.8731, longitude: 80.7718),
+        span: MKCoordinateSpan(latitudeDelta: 5.0, longitudeDelta: 5.0)
+    ))
 
     var body: some View {
         NavigationStack {
@@ -82,6 +88,14 @@ struct SignUpView: View {
                             .textContentType(.newPassword)
                     }
                     
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text("Select your location")
+                            .font(.headline)
+                        Map(position: $cameraPosition)
+                            .frame(height: 200)
+                            .cornerRadius(10)
+                    }
+                    
                     Button(action: viewModel.signUp) {
                         Text("Create Account")
                             .fontWeight(.semibold)
@@ -96,6 +110,16 @@ struct SignUpView: View {
             }
             .navigationTitle("Create Account")
             .navigationBarTitleDisplayMode(.inline)
+            .onChange(of: viewModel.errorMessage) {
+                if viewModel.errorMessage != nil {
+                    showAlert = true
+                }
+            }
+            .alert("Error", isPresented: $showAlert, actions: {
+                Button("OK") {}
+            }, message: {
+                Text(viewModel.errorMessage ?? "An unknown error occurred.")
+            })
         }
     }
 }
@@ -105,5 +129,4 @@ struct SignUpView_Previews: PreviewProvider {
         SignUpView()
     }
 }
-
 

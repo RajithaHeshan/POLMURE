@@ -198,16 +198,18 @@ private struct MapView: View {
                         }
                         .frame(width: 44, height: 44)
                         .gesture(
-                            LongPressGesture(minimumDuration: 0.2)
-                                .sequenced(before: DragGesture(minimumDistance: 0, coordinateSpace: .local))
+                            LongPressGesture(minimumDuration: 0.25)
+                                .sequenced(before: DragGesture(minimumDistance: 0, coordinateSpace: .global))
                                 .onChanged { value in
                                     switch value {
-                                    case .first(true): isDragging = true
+                                    case .first(true):
+                                        isDragging = true
                                     case .second(true, let drag):
-                                        if let location = drag?.location, let newCoordinate = proxy.convert(location, from: .local) {
+                                        if let location = drag?.location, let newCoordinate = proxy.convert(location, from: .global) {
                                             pinLocation = newCoordinate
                                         }
-                                    default: break
+                                    default:
+                                        break
                                     }
                                 }
                                 .onEnded { value in

@@ -6,6 +6,8 @@ struct SignUpView: View {
     @StateObject private var viewModel = SignUpViewModel()
     @State private var showAlert = false
     
+    @State private var pinLocation = CLLocationCoordinate2D(latitude: 7.8731, longitude: 80.7718)
+    
     @State private var cameraPosition: MapCameraPosition = .region(MKCoordinateRegion(
         center: CLLocationCoordinate2D(latitude: 7.8731, longitude: 80.7718),
         span: MKCoordinateSpan(latitudeDelta: 5.0, longitudeDelta: 5.0)
@@ -91,9 +93,32 @@ struct SignUpView: View {
                     VStack(alignment: .leading, spacing: 5) {
                         Text("Select your location")
                             .font(.headline)
-                        Map(position: $cameraPosition)
+                        
+                        MapReader { proxy in
+                            Map(position: $cameraPosition) {
+                                Annotation("Your Location", coordinate: pinLocation) {
+                                    Image(systemName: "mappin.and.ellipse")
+                                        .font(.title)
+                                        .foregroundColor(.red)
+                                        .gesture(
+                                            DragGesture()
+                                                .onChanged { value in
+                                                    if let newCoordinate = proxy.convert(value.location, from: .local) {
+                                                        self.pinLocation = newCoordinate
+                                                    }
+                                                }
+                                                .onEnded { value in
+                                                    viewModel.location = self.pinLocation
+                                                }
+                                        )
+                                }
+                            }
                             .frame(height: 200)
                             .cornerRadius(10)
+                            .onAppear {
+                                viewModel.location = self.pinLocation
+                            }
+                        }
                     }
                     
                     Button(action: viewModel.signUp) {

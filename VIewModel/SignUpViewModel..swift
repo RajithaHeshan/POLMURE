@@ -1,6 +1,7 @@
 import Foundation
 import FirebaseFirestore
 import FirebaseAuth
+import CoreLocation
 
 @MainActor
 class SignUpViewModel: ObservableObject {
@@ -11,6 +12,7 @@ class SignUpViewModel: ObservableObject {
     @Published var password = ""
     @Published var confirmPassword = ""
     @Published var errorMessage: String?
+    @Published var location: CLLocationCoordinate2D?
     
     private let authService = AuthenticationService()
     private let db = Firestore.firestore()
@@ -47,7 +49,7 @@ class SignUpViewModel: ObservableObject {
     }
     
     private func createUserRecord(for user: User) async throws {
-        let userData: [String: Any] = [
+        var userData: [String: Any] = [
             "uid": user.uid,
             "username": username,
             "fullName": fullName,
@@ -56,7 +58,18 @@ class SignUpViewModel: ObservableObject {
             "createdAt": Timestamp(date: Date())
         ]
         
+        if let location = location {
+            let geoPoint = GeoPoint(latitude: location.latitude, longitude: location.longitude)
+            userData["location"] = geoPoint
+        }
+        
         try await db.collection("users").document(user.uid).setData(userData)
+    }
+}
+
+extension CLLocationCoordinate2D: Equatable {
+    public static func == (lhs: CLLocationCoordinate2D, rhs: CLLocationCoordinate2D) -> Bool {
+        lhs.latitude == rhs.latitude && lhs.longitude == rhs.longitude
     }
 }
 

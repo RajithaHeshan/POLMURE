@@ -141,92 +141,143 @@ private struct LocationPicker: View {
     @Binding var cameraPosition: MapCameraPosition
     @Binding var isDragging: Bool
     @ObservedObject var viewModel: SignUpViewModel
+    
+    @State private var isMapFullScreen = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 5) {
             Text("Select your location")
                 .font(.headline)
             
-            ZStack(alignment: .bottomTrailing) {
-                MapReader { proxy in
-                    Map(position: $cameraPosition) {
-                        Annotation("Your Location", coordinate: pinLocation) {
-                            Image(systemName: "mappin.and.ellipse")
-                                .font(.title)
-                                .foregroundColor(.red)
-                                .scaleEffect(isDragging ? 1.2 : 1.0)
-                                .animation(.spring(), value: isDragging)
-                        }
-                    }
-                    .gesture(
-                        LongPressGesture(minimumDuration: 0.2)
-                            .sequenced(before: DragGesture())
-                            .onChanged { value in
-                                switch value {
-                                case .first(true):
-                                    isDragging = true
-                                case .second(true, let drag):
-                                    if let newCoordinate = proxy.convert(drag?.location ?? .zero, from: .local) {
-                                        pinLocation = newCoordinate
-                                    }
-                                default:
-                                    break
-                                }
-                            }
-                            .onEnded { value in
-                                isDragging = false
-                                viewModel.location = pinLocation
-                            }
-                    )
-                    .onAppear {
-                        viewModel.location = pinLocation
-                    }
-                }
+            ZStack(alignment: .topTrailing) {
+                MapView(
+                    pinLocation: $pinLocation,
+                    cameraPosition: $cameraPosition,
+                    isDragging: $isDragging,
+                    viewModel: viewModel
+                )
                 
-                VStack(spacing: 10) {
-                    Button(action: zoomIn) {
-                        Image(systemName: "plus")
-                            .padding(10)
-                            .background(.regularMaterial)
-                            .clipShape(Circle())
-                    }
-                    
-                    Button(action: zoomOut) {
-                        Image(systemName: "minus")
-                            .padding(10)
-                            .background(.regularMaterial)
-                            .clipShape(Circle())
-                    }
+                Button(action: { isMapFullScreen.toggle() }) {
+                    Image(systemName: "arrow.up.left.and.arrow.down.right")
+                        .padding(10)
+                        .background(.regularMaterial)
+                        .clipShape(Circle())
                 }
                 .padding()
                 .shadow(radius: 5)
             }
             .frame(height: 200)
             .cornerRadius(10)
+            .fullScreenCover(isPresented: $isMapFullScreen) {
+                FullScreenMapView(
+                    pinLocation: $pinLocation,
+                    cameraPosition: $cameraPosition,
+                    isDragging: $isDragging,
+                    viewModel: viewModel
+                )
+            }
+        }
+    }
+}
+
+private struct MapView: View {
+    @Binding var pinLocation: CLLocationCoordinate2D
+    @Binding var cameraPosition: MapCameraPosition
+    @Binding var isDragging: Bool
+    @ObservedObject var viewModel: SignUpViewModel
+
+    var body: some View {
+        ZStack(alignment: .bottomTrailing) {
+            MapReader { proxy in
+                Map(position: $cameraPosition) {
+                    Annotation("", coordinate: pinLocation) {
+                        ZStack {
+                            Circle().fill(Color.accentColor.opacity(0.2))
+                            Circle().stroke(Color.accentColor, lineWidth: 1)
+                            Circle().fill(Color.accentColor).frame(width: 8, height: 8)
+                        }
+                        .frame(width: 44, height: 44)
+                        .gesture(
+                            LongPressGesture(minimumDuration: 0.2)
+                                .sequenced(before: DragGesture(minimumDistance: 0, coordinateSpace: .local))
+                                .onChanged { value in
+                                    switch value {
+                                    case .first(true): isDragging = true
+                                    case .second(true, let drag):
+                                        if let location = drag?.location, let newCoordinate = proxy.convert(location, from: .local) {
+                                            pinLocation = newCoordinate
+                                        }
+                                    default: break
+                                    }
+                                }
+                                .onEnded { value in
+                                    isDragging = false
+                                    viewModel.location = pinLocation
+                                }
+                        )
+                    }
+                }
+                .onAppear { viewModel.location = pinLocation }
+            }
+            
+            VStack(spacing: 10) {
+                Button(action: zoomIn) {
+                    Image(systemName: "plus")
+                        .padding(10)
+                        .background(.regularMaterial)
+                        .clipShape(Circle())
+                }
+                Button(action: zoomOut) {
+                    Image(systemName: "minus")
+                        .padding(10)
+                        .background(.regularMaterial)
+                        .clipShape(Circle())
+                }
+            }
+            .padding()
+            .shadow(radius: 5)
         }
     }
     
     private func zoomIn() {
         guard let currentRegion = cameraPosition.region else { return }
-        let newSpan = MKCoordinateSpan(
-            latitudeDelta: currentRegion.span.latitudeDelta / 2,
-            longitudeDelta: currentRegion.span.longitudeDelta / 2
-        )
+        let newSpan = MKCoordinateSpan(latitudeDelta: currentRegion.span.latitudeDelta / 2, longitudeDelta: currentRegion.span.longitudeDelta / 2)
         let newRegion = MKCoordinateRegion(center: currentRegion.center, span: newSpan)
-        withAnimation {
-            cameraPosition = .region(newRegion)
-        }
+        withAnimation { cameraPosition = .region(newRegion) }
     }
     
     private func zoomOut() {
         guard let currentRegion = cameraPosition.region else { return }
-        let newSpan = MKCoordinateSpan(
-            latitudeDelta: currentRegion.span.latitudeDelta * 2,
-            longitudeDelta: currentRegion.span.longitudeDelta * 2
-        )
+        let newSpan = MKCoordinateSpan(latitudeDelta: currentRegion.span.latitudeDelta * 2, longitudeDelta: currentRegion.span.longitudeDelta * 2)
         let newRegion = MKCoordinateRegion(center: currentRegion.center, span: newSpan)
-        withAnimation {
-            cameraPosition = .region(newRegion)
+        withAnimation { cameraPosition = .region(newRegion) }
+    }
+}
+
+private struct FullScreenMapView: View {
+    @Environment(\.dismiss) var dismiss
+    @Binding var pinLocation: CLLocationCoordinate2D
+    @Binding var cameraPosition: MapCameraPosition
+    @Binding var isDragging: Bool
+    @ObservedObject var viewModel: SignUpViewModel
+
+    var body: some View {
+        ZStack(alignment: .topTrailing) {
+            MapView(
+                pinLocation: $pinLocation,
+                cameraPosition: $cameraPosition,
+                isDragging: $isDragging,
+                viewModel: viewModel
+            )
+            .ignoresSafeArea()
+
+            Button(action: { dismiss() }) {
+                Image(systemName: "xmark.circle.fill")
+                    .font(.largeTitle)
+                    .foregroundColor(.secondary)
+                    .background(.white, in: Circle())
+            }
+            .padding()
         }
     }
 }

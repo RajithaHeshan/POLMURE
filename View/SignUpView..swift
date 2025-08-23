@@ -191,32 +191,31 @@ private struct MapView: View {
             MapReader { proxy in
                 Map(position: $cameraPosition) {
                     Annotation("", coordinate: pinLocation) {
-                        ZStack {
-                            Circle().fill(Color.accentColor.opacity(0.2))
-                            Circle().stroke(Color.accentColor, lineWidth: 1)
-                            Circle().fill(Color.accentColor).frame(width: 8, height: 8)
-                        }
-                        .frame(width: 44, height: 44)
-                        .gesture(
-                            LongPressGesture(minimumDuration: 0.25)
-                                .sequenced(before: DragGesture(minimumDistance: 0, coordinateSpace: .global))
-                                .onChanged { value in
-                                    switch value {
-                                    case .first(true):
-                                        isDragging = true
-                                    case .second(true, let drag):
-                                        if let location = drag?.location, let newCoordinate = proxy.convert(location, from: .global) {
-                                            pinLocation = newCoordinate
+                        Image(systemName: "mappin")
+                            .font(.system(size: 44))
+                            .foregroundColor(.accentColor)
+                            .shadow(color: .black.opacity(0.25), radius: 4, y: 8)
+                            .offset(y: -22)
+                            .gesture(
+                                LongPressGesture(minimumDuration: 0.25)
+                                    .sequenced(before: DragGesture(minimumDistance: 0, coordinateSpace: .global))
+                                    .onChanged { value in
+                                        switch value {
+                                        case .first(true):
+                                            isDragging = true
+                                        case .second(true, let drag):
+                                            if let location = drag?.location, let newCoordinate = proxy.convert(location, from: .global) {
+                                                pinLocation = newCoordinate
+                                            }
+                                        default:
+                                            break
                                         }
-                                    default:
-                                        break
                                     }
-                                }
-                                .onEnded { value in
-                                    isDragging = false
-                                    viewModel.location = pinLocation
-                                }
-                        )
+                                    .onEnded { value in
+                                        isDragging = false
+                                        viewModel.location = pinLocation
+                                    }
+                            )
                     }
                 }
                 .onAppear { viewModel.location = pinLocation }

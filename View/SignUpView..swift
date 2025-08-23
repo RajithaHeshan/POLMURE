@@ -193,9 +193,11 @@ private struct MapView: View {
                     Annotation("", coordinate: pinLocation) {
                         Image(systemName: "mappin")
                             .font(.system(size: 44))
-                            .foregroundColor(.accentColor)
+                            .foregroundColor(.red)
                             .shadow(color: .black.opacity(0.25), radius: 4, y: 8)
-                            .offset(y: -22)
+                            .offset(y: -22) // This moves the pin up so the tip is at the location
+                            .scaleEffect(isDragging ? 1.2 : 1.0)
+                            .animation(.easeInOut(duration: 0.2), value: isDragging)
                             .gesture(
                                 LongPressGesture(minimumDuration: 0.25)
                                     .sequenced(before: DragGesture(minimumDistance: 0, coordinateSpace: .global))

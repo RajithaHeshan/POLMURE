@@ -127,12 +127,17 @@ import FirebaseFirestore
 import FirebaseAuth
 import CoreLocation
 import MapKit
+import SwiftUI
 
 @MainActor
 class SignUpViewModel: ObservableObject {
     @Published var username = ""
     @Published var fullName = ""
-    @Published var userType: UserType = .buyer
+    @Published var userType: UserType = .buyer {
+        didSet {
+            updateProfileImageForUserType()
+        }
+    }
     @Published var email = ""
     @Published var password = ""
     @Published var confirmPassword = ""
@@ -141,6 +146,9 @@ class SignUpViewModel: ObservableObject {
     @Published var location: CLLocationCoordinate2D?
     @Published var selectedPlaceName: String?
     
+    @Published var profileImage: Image?
+    private var profileImageData: Data?
+    
     private let authService = AuthenticationService()
     private let db = Firestore.firestore()
     private let geocoder = CLGeocoder()
@@ -148,6 +156,10 @@ class SignUpViewModel: ObservableObject {
     enum UserType: String, CaseIterable, Codable {
         case buyer = "Buyer"
         case seller = "Seller"
+    }
+    
+    init() {
+        updateProfileImageForUserType()
     }
 
     func signUp() {
@@ -166,12 +178,36 @@ class SignUpViewModel: ObservableObject {
         Task {
             do {
                 let authResult = try await authService.signUp(withEmail: email, password: password, fullName: fullName)
+                // In a real app, you would upload the profileImageData to a storage service here
+                // and get back a URL to save in the user record.
                 try await createUserRecord(for: authResult.user)
                 
                 print("Successfully created user and saved data to Firestore.")
                 
             } catch {
                 errorMessage = error.localizedDescription
+            }
+        }
+    }
+    
+    private func updateProfileImageForUserType() {
+        var imageName: String?
+        
+        switch userType {
+        case .buyer:
+            imageName = "Buyer"
+        case .seller:
+            imageName = "seller"
+        }
+        
+        if let name = imageName, let uiImage = UIImage(named: name) {
+            profileImage = Image(uiImage: uiImage)
+            profileImageData = uiImage.jpegData(compressionQuality: 0.8)
+        } else {
+            profileImage = nil
+            profileImageData = nil
+            if let name = imageName {
+                 print("Warning: \(name).jpg not found in asset catalog.")
             }
         }
     }
@@ -203,14 +239,16 @@ class SignUpViewModel: ObservableObject {
             "createdAt": Timestamp(date: Date())
         ]
         
-        if let location = location {
+        if let location = location, userType == .buyer {
             let geoPoint = GeoPoint(latitude: location.latitude, longitude: location.longitude)
             userData["location"] = geoPoint
         }
         
-        if let selectedPlaceName = selectedPlaceName {
+        if let selectedPlaceName = selectedPlaceName, userType == .buyer {
             userData["selectedPlaceName"] = selectedPlaceName
         }
+        
+        // Here you would add the profile image URL after uploading the data
         
         try await db.collection("users").document(user.uid).setData(userData)
     }

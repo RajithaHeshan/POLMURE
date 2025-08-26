@@ -18,16 +18,16 @@ struct SignUpView: View {
                 VStack(alignment: .leading, spacing: 20) {
                     
                     ProfileImageView(viewModel: viewModel)
-                    
+                        
                     SignUpFormFields(viewModel: viewModel)
-                    
+                        
                     if viewModel.userType == .buyer {
                         LocationPicker(
                             cameraPosition: $cameraPosition,
                             viewModel: viewModel
                         )
                     }
-                    
+                        
                     Button(action: viewModel.signUp) {
                         Text("Create Account")
                             .fontWeight(.semibold)
@@ -36,7 +36,7 @@ struct SignUpView: View {
                     .buttonStyle(.borderedProminent)
                     .controlSize(.large)
                     .padding(.top, 20)
-                    
+                        
                 }
                 .padding()
             }
@@ -117,7 +117,9 @@ private struct SignUpFormFields: View {
                 
                 HStack {
                     Picker("Select user type", selection: $viewModel.userType) {
-                        ForEach(SignUpViewModel.UserType.allCases, id: \.self) { type in
+                        // This is the line that was fixed.
+                        // It now uses UserType.allCases directly.
+                        ForEach(UserType.allCases, id: \.self) { type in
                             Text(type.rawValue).tag(type)
                         }
                     }
@@ -304,3 +306,5 @@ struct SignUpView_Previews: PreviewProvider {
         SignUpView()
     }
 }
+
+

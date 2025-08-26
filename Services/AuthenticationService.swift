@@ -59,5 +59,13 @@ class AuthenticationService {
         
         return authResult
     }
+    
+    func signIn(withEmail email: String, password: String) async throws -> AuthDataResult {
+        do {
+            let authResult = try await Auth.auth().signIn(withEmail: email, password: password)
+            return authResult
+        } catch {
+            throw AuthenticationError.firebaseSignInFailed(error)
+        }
+    }
 }
-

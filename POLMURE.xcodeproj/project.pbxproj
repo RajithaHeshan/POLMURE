@@ -50,6 +50,11 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		3945976D2E5C9F7100BD956B /* Services */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Services;
+			sourceTree = "<group>";
+		};
 		39D9C6E12E56F98000AC50A8 /* POLMURE */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -76,16 +81,6 @@
 		39D9C70A2E56F9E100AC50A8 /* VIewModel */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = VIewModel;
-			sourceTree = "<group>";
-		};
-		39D9C70B2E56F9F600AC50A8 /* Model */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Model;
-			sourceTree = "<group>";
-		};
-		39D9C70C2E56FA0100AC50A8 /* Services */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Services;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -132,8 +127,7 @@
 		39D9C6D62E56F98000AC50A8 = {
 			isa = PBXGroup;
 			children = (
-				39D9C70C2E56FA0100AC50A8 /* Services */,
-				39D9C70B2E56F9F600AC50A8 /* Model */,
+				3945976D2E5C9F7100BD956B /* Services */,
 				39D9C70A2E56F9E100AC50A8 /* VIewModel */,
 				39D9C7092E56F9D300AC50A8 /* View */,
 				39D9C6E12E56F98000AC50A8 /* POLMURE */,
@@ -170,11 +164,10 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
+				3945976D2E5C9F7100BD956B /* Services */,
 				39D9C6E12E56F98000AC50A8 /* POLMURE */,
 				39D9C7092E56F9D300AC50A8 /* View */,
 				39D9C70A2E56F9E100AC50A8 /* VIewModel */,
-				39D9C70B2E56F9F600AC50A8 /* Model */,
-				39D9C70C2E56FA0100AC50A8 /* Services */,
 			);
 			name = POLMURE;
 			packageProductDependencies = (

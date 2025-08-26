@@ -48,6 +48,8 @@ struct HomeView: View {
 }
 
 struct HeaderView: View {
+    @EnvironmentObject var sessionStore: SessionStore
+
     var body: some View {
         HStack {
             ZStack {
@@ -74,6 +76,19 @@ struct HeaderView: View {
                     .font(.title3)
                     .foregroundColor(.black)
             }
+            
+            Button(action: {
+                do {
+                    try sessionStore.signOut()
+                } catch {
+                    print("Error signing out: \(error)")
+                }
+            }) {
+                Image(systemName: "power")
+                    .font(.title3)
+                    .foregroundColor(.red)
+            }
+            .padding(.leading, 8)
         }
         .padding(.vertical)
     }
@@ -273,7 +288,7 @@ struct InformationCard: View {
 struct SellerHomePageView_Previews: PreviewProvider {
     static var previews: some View {
         SellerHomePageView()
+            .environmentObject(SessionStore())
     }
 }
-
 

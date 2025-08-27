@@ -4,14 +4,14 @@ import CoreLocation
 
 @MainActor
 class AddPropertyViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
-    // Form State
+    
     @Published var propertyName = "warakapola1"
     @Published var address = ""
     @Published var mobileNumber = ""
     @Published var estimateHarvestUnits = 3200
     @Published var nextHarvestDate = Date()
     
-    // Location State
+ 
     @Published var location: CLLocationCoordinate2D?
     @Published var selectedPlaceName: String?
     

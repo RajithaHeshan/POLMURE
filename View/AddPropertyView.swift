@@ -1,18 +1,17 @@
-
-
 import SwiftUI
 import MapKit
 import CoreLocation
 
 @MainActor
 class AddPropertyViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
-    
+    // Form State
     @Published var propertyName = "warakapola1"
     @Published var address = ""
+    @Published var mobileNumber = ""
     @Published var estimateHarvestUnits = 3200
     @Published var nextHarvestDate = Date()
     
- 
+    // Location State
     @Published var location: CLLocationCoordinate2D?
     @Published var selectedPlaceName: String?
     
@@ -93,6 +92,11 @@ struct AddPropertyView: View {
                         TextField("Enter property address", text: $viewModel.address)
                     }
                     
+                    FormField(label: "Mobile Number") {
+                        TextField("Enter mobile number", text: $viewModel.mobileNumber)
+                            .keyboardType(.phonePad)
+                    }
+                    
                     FormField(label: "Estimate Harvest") {
                         HStack {
                             TextField("Units", value: $viewModel.estimateHarvestUnits, formatter: NumberFormatter())
@@ -112,20 +116,6 @@ struct AddPropertyView: View {
                                 displayedComponents: .date
                             )
                             Spacer()
-                        }
-                    }
-                    
-                    FormField(label: "Photos (Optional)") {
-                        Button(action: {}) {
-                            VStack {
-                                Image(systemName: "plus")
-                                Text("Add Photo")
-                            }
-                            .font(.headline)
-                            .foregroundColor(.blue)
-                            .frame(width: 120, height: 120)
-                            .background(Color.blue.opacity(0.1))
-                            .cornerRadius(12)
                         }
                     }
                     

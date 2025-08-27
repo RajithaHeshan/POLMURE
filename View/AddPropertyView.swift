@@ -2,78 +2,10 @@ import SwiftUI
 import MapKit
 import CoreLocation
 
-@MainActor
-class AddPropertyViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
-    
-    @Published var propertyName = "warakapola1"
-    @Published var address = ""
-    @Published var mobileNumber = ""
-    @Published var estimateHarvestUnits = 3200
-    @Published var nextHarvestDate = Date()
-    
- 
-    @Published var location: CLLocationCoordinate2D?
-    @Published var selectedPlaceName: String?
-    
-    private let locationManager = CLLocationManager()
-    private let geocoder = CLGeocoder()
-    private var geocodeDebounceTask: Task<Void, Never>?
-
-    override init() {
-        super.init()
-        self.locationManager.delegate = self
-        self.locationManager.desiredAccuracy = kCLLocationAccuracyBest
-    }
-
-    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        switch manager.authorizationStatus {
-        case .authorizedWhenInUse, .authorizedAlways:
-            manager.requestLocation()
-        case .notDetermined:
-            manager.requestWhenInUseAuthorization()
-        case .denied, .restricted:
-            self.selectedPlaceName = "Location access denied."
-        @unknown default:
-            break
-        }
-    }
-
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard let location = locations.first else { return }
-        self.location = location.coordinate
-        reverseGeocodeLocation()
-    }
-    
-    func reverseGeocodeLocation() {
-        guard let location = self.location else { return }
-        
-        geocodeDebounceTask?.cancel()
-        geocodeDebounceTask = Task {
-            do {
-                try await Task.sleep(nanoseconds: 500_000_000) // 0.5s debounce
-                let clLocation = CLLocation(latitude: location.latitude, longitude: location.longitude)
-                if let placemarks = try? await geocoder.reverseGeocodeLocation(clLocation),
-                   let placemark = placemarks.first {
-                    self.selectedPlaceName = placemark.locality ?? placemark.name ?? "Unknown Place"
-                } else {
-                    self.selectedPlaceName = "Could not determine city"
-                }
-            } catch {
-                print("Geocode task cancelled")
-            }
-        }
-    }
-
-    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        print("Failed to get user location: \(error.localizedDescription)")
-        self.selectedPlaceName = "Location unavailable"
-    }
-}
-
-
 struct AddPropertyView: View {
     @Environment(\.dismiss) var dismiss
     @StateObject private var viewModel = AddPropertyViewModel()
+    @EnvironmentObject var sessionStore: SessionStore
     
     @State private var cameraPosition: MapCameraPosition = .region(MKCoordinateRegion(
         center: CLLocationCoordinate2D(latitude: 7.8731, longitude: 80.7718),
@@ -82,67 +14,94 @@ struct AddPropertyView: View {
     
     var body: some View {
         NavigationView {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
-                    FormField(label: "PROPERTY Name") {
-                        TextField("Enter property name", text: $viewModel.propertyName)
-                    }
-                    
-                    FormField(label: "Address") {
-                        TextField("Enter property address", text: $viewModel.address)
-                    }
-                    
-                    FormField(label: "Mobile Number") {
-                        TextField("Enter mobile number", text: $viewModel.mobileNumber)
-                            .keyboardType(.phonePad)
-                    }
-                    
-                    FormField(label: "Estimate Harvest") {
-                        HStack {
-                            TextField("Units", value: $viewModel.estimateHarvestUnits, formatter: NumberFormatter())
-                                .keyboardType(.numberPad)
-                            Text("units")
-                                .foregroundColor(.secondary)
-                            Spacer()
-                            Stepper("", value: $viewModel.estimateHarvestUnits, in: 0...10000)
+            ZStack {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 24) {
+                        FormField(label: "PROPERTY Name") {
+                            TextField("Enter property name", text: $viewModel.propertyName)
                         }
-                    }
-                    
-                    FormField(label: "Next Harvest") {
-                        HStack {
-                            DatePicker(
-                                "",
-                                selection: $viewModel.nextHarvestDate,
-                                displayedComponents: .date
-                            )
-                            Spacer()
+                        
+                        FormField(label: "Address") {
+                            TextField("Enter property address", text: $viewModel.address)
                         }
-                    }
-                    
-                    PropertyLocationPicker(cameraPosition: $cameraPosition, viewModel: viewModel)
-                    
-                    Button(action: {}) {
-                        Text("Confirm")
-                            .fontWeight(.semibold)
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.green)
-                            .cornerRadius(12)
-                    }
-                    .padding(.top)
+                        
+                        FormField(label: "Mobile Number") {
+                            TextField("Enter mobile number", text: $viewModel.mobileNumber)
+                                .keyboardType(.phonePad)
+                        }
+                        
+                        FormField(label: "Estimate Harvest") {
+                            HStack {
+                                TextField("Units", value: $viewModel.estimateHarvestUnits, formatter: NumberFormatter())
+                                    .keyboardType(.numberPad)
+                                Text("units")
+                                    .foregroundColor(.secondary)
+                                Spacer()
+                                Stepper("", value: $viewModel.estimateHarvestUnits, in: 0...10000)
+                            }
+                        }
+                        
+                        FormField(label: "Next Harvest") {
+                            HStack {
+                                DatePicker(
+                                    "",
+                                    selection: $viewModel.nextHarvestDate,
+                                    displayedComponents: .date
+                                )
+                                Spacer()
+                            }
+                        }
+                        
+                        PropertyLocationPicker(cameraPosition: $cameraPosition, viewModel: viewModel)
+                        
+                        Button(action: {
+                            if let userId = sessionStore.appUser?.id {
+                                viewModel.saveProperty(userId: userId)
+                            }
+                        }) {
+                            Text("Confirm")
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.green)
+                                .cornerRadius(12)
+                        }
+                        .padding(.top)
 
-                }
-                .padding()
-            }
-            .navigationTitle("Add Property")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: { dismiss() }) {
-                        Image(systemName: "arrow.backward")
-                            .foregroundColor(.black)
                     }
+                    .padding()
+                }
+                .navigationTitle("Add Property")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button(action: { dismiss() }) {
+                            Image(systemName: "arrow.backward")
+                                .foregroundColor(.black)
+                        }
+                    }
+                }
+                .alert(isPresented: $viewModel.showAlert) {
+                    Alert(
+                        title: Text(viewModel.saveSuccess ? "Success" : "Error"),
+                        message: Text(viewModel.alertMessage),
+                        dismissButton: .default(Text("OK")) {
+                            if viewModel.saveSuccess {
+                                dismiss()
+                            }
+                        }
+                    )
+                }
+                
+                if viewModel.isLoading {
+                    Color.black.opacity(0.4).ignoresSafeArea()
+                    ProgressView("Saving...")
+                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                        .foregroundColor(.white)
+                        .padding()
+                        .background(Color.black.opacity(0.6))
+                        .cornerRadius(12)
                 }
             }
         }
@@ -308,5 +267,6 @@ struct FormField<Content: View>: View {
 struct AddPropertyView_Previews: PreviewProvider {
     static var previews: some View {
         AddPropertyView()
+            .environmentObject(SessionStore())
     }
 }

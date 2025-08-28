@@ -75,8 +75,7 @@ struct ListingPropertyCardView: View {
 
 
             VStack(alignment: .leading, spacing: 8) {
-                // In a real app, you would fetch the owner's name from the users collection
-                Text("Seller")
+                Text(property.sellerName)
                     .font(.headline)
                     .fontWeight(.bold)
                 

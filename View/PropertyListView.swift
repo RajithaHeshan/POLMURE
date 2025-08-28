@@ -64,14 +64,13 @@ struct ListingPropertyCardView: View {
 
     var body: some View {
         HStack(spacing: 16) {
-            // In a real app, you would load an image URL from the property model
-            Image(systemName: "photo.fill")
+            Image("seller")
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .frame(width: 100, height: 160)
                 .background(Color(.systemGray5))
                 .cornerRadius(12)
-                .foregroundColor(.secondary)
+                .clipped()
 
 
             VStack(alignment: .leading, spacing: 8) {
@@ -81,9 +80,9 @@ struct ListingPropertyCardView: View {
                 
                 ListingPropertyDetailRow(key: "Property Name:", value: property.propertyName)
                 ListingPropertyDetailRow(key: "City:", value: property.cityName)
+                ListingPropertyDetailRow(key: "Mobile:", value: property.mobileNumber)
                 ListingPropertyDetailRow(key: "Estimate Haravest:", value: "\(property.estimateHarvestUnits) units")
                 ListingPropertyDetailRow(key: "Next Haravest:", value: "\(property.daysUntilNextHarvest) Days")
-                // You would add highestBid here if it were in your model
                 
                 HStack {
                     Text("Status:")

@@ -25,6 +25,10 @@
 //                            TextField("Enter property address", text: $viewModel.address)
 //                        }
 //                        
+//                        FormField(label: "Seller Name") {
+//                            TextField("Enter seller name", text: $viewModel.sellerName)
+//                        }
+//                        
 //                        FormField(label: "Mobile Number") {
 //                            TextField("Enter mobile number", text: $viewModel.mobileNumber)
 //                                .keyboardType(.phonePad)
@@ -271,7 +275,6 @@
 //    }
 //}
 
-
 import SwiftUI
 import MapKit
 import CoreLocation
@@ -293,10 +296,6 @@ struct AddPropertyView: View {
                     VStack(alignment: .leading, spacing: 24) {
                         FormField(label: "PROPERTY Name") {
                             TextField("Enter property name", text: $viewModel.propertyName)
-                        }
-                        
-                        FormField(label: "Address") {
-                            TextField("Enter property address", text: $viewModel.address)
                         }
                         
                         FormField(label: "Seller Name") {

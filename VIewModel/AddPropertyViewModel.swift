@@ -9,6 +9,7 @@ class AddPropertyViewModel: NSObject, ObservableObject, CLLocationManagerDelegat
     // Form State
     @Published var propertyName = "warakapola1"
     @Published var address = ""
+    @Published var sellerName = ""
     @Published var mobileNumber = ""
     @Published var estimateHarvestUnits = 3200
     @Published var nextHarvestDate = Date()
@@ -42,6 +43,7 @@ class AddPropertyViewModel: NSObject, ObservableObject, CLLocationManagerDelegat
             "ownerId": userId,
             "propertyName": propertyName,
             "address": address,
+            "sellerName": sellerName,
             "mobileNumber": mobileNumber,
             "estimateHarvestUnits": estimateHarvestUnits,
             "nextHarvestDate": Timestamp(date: nextHarvestDate),
@@ -106,4 +108,3 @@ class AddPropertyViewModel: NSObject, ObservableObject, CLLocationManagerDelegat
         self.selectedPlaceName = "Location unavailable"
     }
 }
-

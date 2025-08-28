@@ -6,6 +6,7 @@ struct Property: Identifiable, Codable {
     let ownerId: String
     let propertyName: String
     let address: String
+    let sellerName: String
     let mobileNumber: String
     let estimateHarvestUnits: Int
     let nextHarvestDate: Timestamp
@@ -21,5 +22,4 @@ struct Property: Identifiable, Codable {
         return components.day ?? 0
     }
 }
-
 

@@ -11,24 +11,46 @@ struct PropertyListView: View {
                     .padding(.horizontal)
                     .padding(.bottom)
 
-                ScrollView {
-                    LazyVStack(spacing: 16) {
-                        ForEach(viewModel.properties) { property in
+                List {
+                    ForEach(viewModel.properties) { property in
+                        NavigationLink(destination: Text("Detail view for \(property.propertyName)")) {
                             ListingPropertyCardView(property: property)
                         }
-                        
-                        AddPropertyButton()
-                            .padding(.top)
+                        .swipeActions(edge: .leading) {
+                            Button {
+                                // Handle edit action
+                                // e.g., viewModel.edit(property)
+                            } label: {
+                                Label("Edit", systemImage: "pencil")
+                            }
+                            .tint(.blue)
+                        }
+                        .swipeActions(edge: .trailing) {
+                            Button(role: .destructive) {
+                                // Handle delete action
+                                // e.g., viewModel.delete(property)
+                            } label: {
+                                Label("Delete", systemImage: "trash.fill")
+                            }
+                        }
+                        .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
                     }
-                    .padding(.horizontal)
+                    
+                    AddPropertyButton()
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
                 }
+                .listStyle(.plain)
+                .background(Color(.systemGray6))
             }
             .navigationTitle("Property")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: {
-                        // Handle back action
+                        
                     }) {
                         Image(systemName: "arrow.backward")
                             .foregroundColor(.black)
@@ -40,7 +62,7 @@ struct PropertyListView: View {
     }
 }
 
-// MARK: - Subviews
+
 struct SearchBar: View {
     @Binding var text: String
 
@@ -163,3 +185,4 @@ struct PropertyListView_Previews: PreviewProvider {
         }
     }
 }
+

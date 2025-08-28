@@ -1,29 +1,9 @@
 
-
 import SwiftUI
 
-struct Property: Identifiable {
-    let id = UUID()
-    let ownerName: String
-    let propertyName: String
-    let city: String
-    let estimateHarvest: Int
-    let nextHarvestDays: Int
-    let highestBid: Int
-    let status: String
-    let imageName: String
-}
-
-
 struct PropertyListView: View {
+    @StateObject private var viewModel = PropertyListViewModel()
     @State private var searchText = ""
-    
-  
-    let properties: [Property] = [
-        Property(ownerName: "Heshan Dunumala", propertyName: "Warakapola 1", city: "Warakapola", estimateHarvest: 2500, nextHarvestDays: 4, highestBid: 100, status: "Available", imageName: "https://placehold.co/300x500/a1e0b8/3d8c5b?text=Farmer"),
-        Property(ownerName: "Heshan Dunumala", propertyName: "Warakapola 1", city: "Warakapola", estimateHarvest: 2500, nextHarvestDays: 4, highestBid: 100, status: "Available", imageName: "https://placehold.co/300x500/a1e0b8/3d8c5b?text=Farmer"),
-        Property(ownerName: "Heshan Dunumala", propertyName: "Warakapola 1", city: "Warakapola", estimateHarvest: 2500, nextHarvestDays: 4, highestBid: 100, status: "Available", imageName: "https://placehold.co/300x500/a1e0b8/3d8c5b?text=Farmer")
-    ]
 
     var body: some View {
         NavigationView {
@@ -34,7 +14,7 @@ struct PropertyListView: View {
 
                 ScrollView {
                     LazyVStack(spacing: 16) {
-                        ForEach(properties) { property in
+                        ForEach(viewModel.properties) { property in
                             ListingPropertyCardView(property: property)
                         }
                         
@@ -61,7 +41,7 @@ struct PropertyListView: View {
     }
 }
 
-
+// MARK: - Subviews
 struct SearchBar: View {
     @Binding var text: String
 
@@ -85,31 +65,33 @@ struct ListingPropertyCardView: View {
 
     var body: some View {
         HStack(spacing: 16) {
-            AsyncImage(url: URL(string: property.imageName)) { image in
-                image.resizable()
-                     .aspectRatio(contentMode: .fill)
-            } placeholder: {
-                Color(.systemGray5)
-            }
-            .frame(width: 100, height: 160)
-            .cornerRadius(12)
+            // In a real app, you would load an image URL from the property model
+            Image(systemName: "photo.fill")
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: 100, height: 160)
+                .background(Color(.systemGray5))
+                .cornerRadius(12)
+                .foregroundColor(.secondary)
+
 
             VStack(alignment: .leading, spacing: 8) {
-                Text(property.ownerName)
+                // In a real app, you would fetch the owner's name from the users collection
+                Text("Seller")
                     .font(.headline)
                     .fontWeight(.bold)
                 
                 ListingPropertyDetailRow(key: "Property Name:", value: property.propertyName)
-                ListingPropertyDetailRow(key: "City:", value: property.city)
-                ListingPropertyDetailRow(key: "Estimate Haravest:", value: "\(property.estimateHarvest) units")
-                ListingPropertyDetailRow(key: "Next Haravest:", value: "\(property.nextHarvestDays) Days")
-                ListingPropertyDetailRow(key: "Highest Bid:", value: "\(property.highestBid) per units")
+                ListingPropertyDetailRow(key: "City:", value: property.cityName)
+                ListingPropertyDetailRow(key: "Estimate Haravest:", value: "\(property.estimateHarvestUnits) units")
+                ListingPropertyDetailRow(key: "Next Haravest:", value: "\(property.daysUntilNextHarvest) Days")
+                // You would add highestBid here if it were in your model
                 
                 HStack {
                     Text("Status:")
                         .font(.footnote)
                         .foregroundColor(.secondary)
-                    Text(property.status)
+                    Text("Available") // Assuming status is always available for now
                         .font(.footnote)
                         .fontWeight(.bold)
                         .foregroundColor(.green)
@@ -144,9 +126,7 @@ struct ListingPropertyDetailRow: View {
 
 struct AddPropertyButton: View {
     var body: some View {
-        Button(action: {
-            
-        }) {
+        NavigationLink(destination: AddPropertyView()) {
             Text("Add your Property")
                 .fontWeight(.semibold)
                 .foregroundColor(.white)
@@ -160,10 +140,9 @@ struct AddPropertyButton: View {
     }
 }
 
-
+// MARK: - Preview
 struct PropertyListView_Previews: PreviewProvider {
     static var previews: some View {
-        
         TabView {
             PropertyListView()
                 .tabItem {

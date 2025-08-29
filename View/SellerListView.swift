@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct SellersListView: View {
+    @StateObject private var viewModel = SellersListViewModel()
     @State private var searchText = ""
     @State private var sortOption = "Any"
     @State private var harvestEstimate: Double = 50
@@ -17,9 +18,8 @@ struct SellersListView: View {
                     .padding(.bottom)
 
                 List {
-                   
-                    ForEach(0..<3) { _ in
-                        SellerCardView()
+                    ForEach(viewModel.properties) { property in
+                        SellerCardView(property: property)
                             .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
                             .listRowSeparator(.hidden)
                             .listRowBackground(Color.clear)
@@ -33,7 +33,7 @@ struct SellersListView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: {
-                        
+                        // Handle back action
                     }) {
                         Image(systemName: "arrow.backward")
                             .foregroundColor(.black)
@@ -95,6 +95,8 @@ struct FilterSortView: View {
 
 
 struct SellerCardView: View {
+    let property: Property
+
     var body: some View {
         HStack(spacing: 16) {
             Image("seller")
@@ -106,21 +108,21 @@ struct SellerCardView: View {
                 .clipped()
 
             VStack(alignment: .leading, spacing: 8) {
-                Text("Heshan Dunumala")
+                Text(property.sellerName)
                     .font(.headline)
                     .fontWeight(.bold)
 
-                SellerDetailRow(key: "Property Name:", value: "Warakapola 1")
-                SellerDetailRow(key: "City:", value: "Warakapola")
-                SellerDetailRow(key: "Estimate Haravest:", value: "2500 units")
-                SellerDetailRow(key: "Next Haravest:", value: "4 Days")
-                SellerDetailRow(key: "Highest Bid:", value: "100 per units")
+                SellerDetailRow(key: "Property Name:", value: property.propertyName)
+                SellerDetailRow(key: "City:", value: property.cityName)
+                SellerDetailRow(key: "Estimate Haravest:", value: "\(property.estimateHarvestUnits) units")
+                SellerDetailRow(key: "Next Haravest:", value: "\(property.daysUntilNextHarvest) Days")
+                SellerDetailRow(key: "Highest Bid:", value: "100 per units") // Placeholder
                 
                 HStack {
                     Text("Status:")
                         .font(.footnote)
                         .foregroundColor(.secondary)
-                    Text("Available")
+                    Text("Available") // Placeholder
                         .font(.footnote)
                         .fontWeight(.bold)
                         .foregroundColor(.green)
@@ -154,7 +156,7 @@ struct SellerDetailRow: View {
 }
 
 
-
+// MARK: - Preview
 struct SellersListView_Previews: PreviewProvider {
     static var previews: some View {
         TabView {
@@ -180,5 +182,4 @@ struct SellersListView_Previews: PreviewProvider {
         }
     }
 }
-
 

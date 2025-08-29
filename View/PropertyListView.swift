@@ -3,6 +3,7 @@ import SwiftUI
 struct PropertyListView: View {
     @StateObject private var viewModel = PropertyListViewModel()
     @State private var searchText = ""
+    @State private var propertyToEdit: Property?
 
     var body: some View {
         NavigationView {
@@ -13,29 +14,11 @@ struct PropertyListView: View {
 
                 List {
                     ForEach(viewModel.properties) { property in
-                        NavigationLink(destination: Text("Detail view for \(property.propertyName)")) {
-                            ListingPropertyCardView(property: property)
-                        }
-                        .swipeActions(edge: .leading) {
-                            Button {
-                                // Handle edit action
-                                // e.g., viewModel.edit(property)
-                            } label: {
-                                Label("Edit", systemImage: "pencil")
-                            }
-                            .tint(.blue)
-                        }
-                        .swipeActions(edge: .trailing) {
-                            Button(role: .destructive) {
-                                // Handle delete action
-                                // e.g., viewModel.delete(property)
-                            } label: {
-                                Label("Delete", systemImage: "trash.fill")
-                            }
-                        }
-                        .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
-                        .listRowSeparator(.hidden)
-                        .listRowBackground(Color.clear)
+                        PropertyRowView(
+                            property: property,
+                            viewModel: viewModel,
+                            propertyToEdit: $propertyToEdit
+                        )
                     }
                     
                     AddPropertyButton()
@@ -44,13 +27,16 @@ struct PropertyListView: View {
                 }
                 .listStyle(.plain)
                 .background(Color(.systemGray6))
+                .sheet(item: $propertyToEdit) { property in
+                    AddPropertyView(propertyToEdit: property)
+                }
             }
             .navigationTitle("Property")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: {
-                        
+                        // Handle back action
                     }) {
                         Image(systemName: "arrow.backward")
                             .foregroundColor(.black)
@@ -62,6 +48,37 @@ struct PropertyListView: View {
     }
 }
 
+// MARK: - Subviews
+struct PropertyRowView: View {
+    let property: Property
+    @ObservedObject var viewModel: PropertyListViewModel
+    @Binding var propertyToEdit: Property?
+
+    var body: some View {
+        ListingPropertyCardView(property: property)
+            .onTapGesture {
+                self.propertyToEdit = property
+            }
+            .swipeActions(edge: .leading) {
+                Button {
+                    self.propertyToEdit = property
+                } label: {
+                    Label("Edit", systemImage: "pencil")
+                }
+                .tint(.blue)
+            }
+            .swipeActions(edge: .trailing) {
+                Button(role: .destructive) {
+                    viewModel.delete(property)
+                } label: {
+                    Label("Delete", systemImage: "trash.fill")
+                }
+            }
+            .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+            .listRowSeparator(.hidden)
+            .listRowBackground(Color.clear)
+    }
+}
 
 struct SearchBar: View {
     @Binding var text: String
@@ -183,6 +200,6 @@ struct PropertyListView_Previews: PreviewProvider {
                     Label("Account", systemImage: "person.fill")
                 }
         }
+        .environmentObject(SessionStore()) // This line fixes the crash
     }
 }
-

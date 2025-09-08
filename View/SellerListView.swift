@@ -1,10 +1,45 @@
+
 import SwiftUI
+import MapKit
 
 struct SellersListView: View {
     @StateObject private var viewModel = SellersListViewModel()
     @State private var searchText = ""
     @State private var sortOption = "Any"
-    @State private var harvestEstimate: Double = 50
+    @State private var harvestEstimate: Double = 0
+    
+ 
+    @State private var selectedLocationName: String = "Any"
+    @State private var isShowingMapView = false
+
+    private var filteredProperties: [Property] {
+     
+        let propertiesToFilter = viewModel.properties
+
+       
+        let searchedProperties = if searchText.isEmpty {
+            propertiesToFilter
+        } else {
+            propertiesToFilter.filter { property in
+                property.propertyName.localizedCaseInsensitiveContains(searchText) ||
+                property.sellerName.localizedCaseInsensitiveContains(searchText) ||
+                property.cityName.localizedCaseInsensitiveContains(searchText)
+            }
+        }
+
+
+        let locatedProperties = if selectedLocationName == "Any" {
+            searchedProperties
+        } else {
+            searchedProperties.filter { $0.cityName.localizedCaseInsensitiveContains(selectedLocationName) }
+        }
+
+        let finalProperties = locatedProperties.filter {
+            $0.estimateHarvestUnits >= Int(harvestEstimate)
+        }
+
+        return finalProperties
+    }
 
     var body: some View {
         NavigationView {
@@ -13,12 +48,17 @@ struct SellersListView: View {
                     .padding(.horizontal)
                     .padding(.bottom)
 
-                FilterSortView(sortOption: $sortOption, harvestEstimate: $harvestEstimate)
-                    .padding(.horizontal)
-                    .padding(.bottom)
+                FilterSortView(
+                    sortOption: $sortOption,
+                    harvestEstimate: $harvestEstimate,
+                    selectedLocationName: $selectedLocationName,
+                    isShowingMapView: $isShowingMapView
+                )
+                .padding(.horizontal)
+                .padding(.bottom)
 
                 List {
-                    ForEach(viewModel.properties) { property in
+                    ForEach(filteredProperties) { property in
                         SellerCardView(property: property)
                             .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
                             .listRowSeparator(.hidden)
@@ -41,6 +81,9 @@ struct SellersListView: View {
                 }
             }
             .background(Color.white.ignoresSafeArea())
+            .sheet(isPresented: $isShowingMapView) {
+                SellerLocationPickerView(selectedLocationName: $selectedLocationName)
+            }
         }
     }
 }
@@ -48,6 +91,8 @@ struct SellersListView: View {
 struct FilterSortView: View {
     @Binding var sortOption: String
     @Binding var harvestEstimate: Double
+    @Binding var selectedLocationName: String
+    @Binding var isShowingMapView: Bool
     
     let sortOptions = ["Any", "Nearest", "Highest Bid"]
 
@@ -82,12 +127,116 @@ struct FilterSortView: View {
             }
             
             VStack(alignment: .leading, spacing: 8) {
-                Text("Estimate Harvest")
+                HStack {
+                    Text("Estimate Harvest")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                    Spacer()
+                    Text("\(Int(harvestEstimate)) units")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+                
+                Slider(value: $harvestEstimate, in: 0...10000, step: 100)
+                    .accentColor(.blue)
+            }
+            
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Select Your Location")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
                 
-                Slider(value: $harvestEstimate, in: 0...100, step: 1)
-                    .accentColor(.blue)
+                Button(action: {
+                    isShowingMapView.toggle()
+                }) {
+                    HStack {
+                        Text(selectedLocationName)
+                        Spacer()
+                        Image(systemName: "map")
+                            .foregroundColor(.secondary)
+                    }
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color(.systemGray4), lineWidth: 1)
+                    )
+                    .foregroundColor(.primary)
+                }
+            }
+        }
+    }
+}
+
+struct SellerLocationPickerView: View {
+    @Environment(\.dismiss) var dismiss
+    @Binding var selectedLocationName: String
+    
+    @State private var cameraPosition: MapCameraPosition = .region(MKCoordinateRegion(
+        center: CLLocationCoordinate2D(latitude: 7.8731, longitude: 80.7718),
+        span: MKCoordinateSpan(latitudeDelta: 5.0, longitudeDelta: 5.0))
+    )
+    @State private var currentLocationName: String = "Move map to select..."
+    private let geocoder = CLGeocoder()
+
+    var body: some View {
+        NavigationView {
+            ZStack {
+                Map(position: $cameraPosition)
+                    .onMapCameraChange(frequency: .onEnd) { context in
+                        reverseGeocode(coordinate: context.region.center)
+                    }
+                    .ignoresSafeArea()
+                    .overlay {
+                        Image(systemName: "mappin")
+                            .font(.system(size: 44))
+                            .foregroundColor(.red)
+                            .shadow(color: .black.opacity(0.25), radius: 4, y: 8)
+                            .offset(y: -22)
+                    }
+                
+                VStack {
+                    Spacer()
+                    VStack(spacing: 12) {
+                        Text(currentLocationName)
+                            .font(.headline)
+                            .padding()
+                            .background(.regularMaterial)
+                            .cornerRadius(12)
+                        
+                        Button(action: {
+                            selectedLocationName = currentLocationName
+                            dismiss()
+                        }) {
+                            Text("Confirm Location")
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.blue)
+                                .cornerRadius(12)
+                        }
+                    }
+                    .padding()
+                }
+            }
+            .navigationTitle("Select Location")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+    
+    private func reverseGeocode(coordinate: CLLocationCoordinate2D) {
+        let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
+        geocoder.reverseGeocodeLocation(location) { placemarks, error in
+            if let placemark = placemarks?.first {
+                self.currentLocationName = placemark.locality ?? placemark.name ?? "Unknown Location"
             }
         }
     }
@@ -182,4 +331,5 @@ struct SellersListView_Previews: PreviewProvider {
         }
     }
 }
+
 

@@ -304,8 +304,6 @@
 //        SignUpView()
 //    }
 //}
-
-
 import SwiftUI
 import MapKit
 import PhotosUI
@@ -350,8 +348,8 @@ struct SignUpView: View {
             }
             .navigationTitle("Create Account")
             .navigationBarTitleDisplayMode(.inline)
-            .onChange(of: viewModel.errorMessage) {
-                if viewModel.errorMessage != nil {
+            .onChange(of: viewModel.errorMessage) { newValue in
+                if newValue != nil {
                     showAlert = true
                 }
             }
@@ -417,6 +415,18 @@ private struct SignUpFormFields: View {
                     .background(.thinMaterial)
                     .cornerRadius(10)
                     .textContentType(.name)
+            }
+            
+            // This is the new Mobile Number field
+            VStack(alignment: .leading, spacing: 5) {
+                Text("Mobile Number")
+                    .font(.headline)
+                TextField("Enter your mobile number", text: $viewModel.mobileNumber)
+                    .padding()
+                    .background(.thinMaterial)
+                    .cornerRadius(10)
+                    .textContentType(.telephoneNumber)
+                    .keyboardType(.phonePad)
             }
             
             VStack(alignment: .leading, spacing: 5) {
@@ -612,3 +622,5 @@ struct SignUpView_Previews: PreviewProvider {
         SignUpView()
     }
 }
+
+

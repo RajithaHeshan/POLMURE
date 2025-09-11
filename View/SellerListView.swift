@@ -1,22 +1,19 @@
-
 import SwiftUI
 import MapKit
 
 struct SellersListView: View {
     @StateObject private var viewModel = SellersListViewModel()
+    @EnvironmentObject var sessionStore: SessionStore
+    
     @State private var searchText = ""
     @State private var sortOption = "Any"
     @State private var harvestEstimate: Double = 0
-    
- 
     @State private var selectedLocationName: String = "Any"
     @State private var isShowingMapView = false
 
     private var filteredProperties: [Property] {
-     
         let propertiesToFilter = viewModel.properties
-
-       
+        
         let searchedProperties = if searchText.isEmpty {
             propertiesToFilter
         } else {
@@ -26,7 +23,6 @@ struct SellersListView: View {
                 property.cityName.localizedCaseInsensitiveContains(searchText)
             }
         }
-
 
         let locatedProperties = if selectedLocationName == "Any" {
             searchedProperties
@@ -44,11 +40,13 @@ struct SellersListView: View {
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
-                SearchBar(text: $searchText)
+                // Using the renamed, unique SearchBar
+                SellersSearchBar(text: $searchText)
                     .padding(.horizontal)
                     .padding(.bottom)
 
-                FilterSortView(
+                // Using the renamed, unique FilterSortView
+                SellersFilterSortView(
                     sortOption: $sortOption,
                     harvestEstimate: $harvestEstimate,
                     selectedLocationName: $selectedLocationName,
@@ -59,7 +57,8 @@ struct SellersListView: View {
 
                 List {
                     ForEach(filteredProperties) { property in
-                        SellerCardView(property: property)
+                        // Using the new, simplified row view
+                        SellerListRowView(property: property)
                             .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
                             .listRowSeparator(.hidden)
                             .listRowBackground(Color.clear)
@@ -82,13 +81,53 @@ struct SellersListView: View {
             }
             .background(Color.white.ignoresSafeArea())
             .sheet(isPresented: $isShowingMapView) {
-                SellerLocationPickerView(selectedLocationName: $selectedLocationName)
+                SellersLocationPickerView(selectedLocationName: $selectedLocationName)
             }
         }
     }
 }
 
-struct FilterSortView: View {
+// MARK: - Row View (Refactored to solve compiler error)
+struct SellerListRowView: View {
+    let property: Property
+    @EnvironmentObject var sessionStore: SessionStore
+
+    @ViewBuilder
+    private var destinationView: some View {
+        if sessionStore.appUser?.userType == .buyer {
+            SellerBidView(property: property)
+        } else {
+            SellerDetailView(property: property)
+        }
+    }
+
+    var body: some View {
+        NavigationLink(destination: destinationView) {
+            SellersListCardView(property: property)
+        }
+    }
+}
+
+
+// MARK: - Subviews with Unique Names
+
+struct SellersSearchBar: View {
+    @Binding var text: String
+
+    var body: some View {
+        HStack {
+            Image(systemName: "magnifyingglass").foregroundColor(.gray)
+            TextField("Search...", text: $text)
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(Color(.systemGray4), lineWidth: 1)
+        )
+    }
+}
+
+struct SellersFilterSortView: View {
     @Binding var sortOption: String
     @Binding var harvestEstimate: Double
     @Binding var selectedLocationName: String
@@ -138,7 +177,7 @@ struct FilterSortView: View {
                 }
                 
                 Slider(value: $harvestEstimate, in: 0...10000, step: 100)
-                    .accentColor(.blue)
+                    .tint(.blue)
             }
             
             VStack(alignment: .leading, spacing: 8) {
@@ -168,7 +207,7 @@ struct FilterSortView: View {
     }
 }
 
-struct SellerLocationPickerView: View {
+struct SellersLocationPickerView: View {
     @Environment(\.dismiss) var dismiss
     @Binding var selectedLocationName: String
     
@@ -243,7 +282,7 @@ struct SellerLocationPickerView: View {
 }
 
 
-struct SellerCardView: View {
+struct SellersListCardView: View {
     let property: Property
 
     var body: some View {
@@ -261,11 +300,11 @@ struct SellerCardView: View {
                     .font(.headline)
                     .fontWeight(.bold)
 
-                SellerDetailRow(key: "Property Name:", value: property.propertyName)
-                SellerDetailRow(key: "City:", value: property.cityName)
-                SellerDetailRow(key: "Estimate Haravest:", value: "\(property.estimateHarvestUnits) units")
-                SellerDetailRow(key: "Next Haravest:", value: "\(property.daysUntilNextHarvest) Days")
-                SellerDetailRow(key: "Highest Bid:", value: "100 per units") // Placeholder
+                SellersListDetailRow(key: "Property Name:", value: property.propertyName)
+                SellersListDetailRow(key: "City:", value: property.cityName)
+                SellersListDetailRow(key: "Estimate Haravest:", value: "\(property.estimateHarvestUnits) units")
+                SellersListDetailRow(key: "Next Haravest:", value: "\(property.daysUntilNextHarvest) Days")
+                SellersListDetailRow(key: "Highest Bid:", value: "100 per units") // Placeholder
                 
                 HStack {
                     Text("Status:")
@@ -287,7 +326,7 @@ struct SellerCardView: View {
     }
 }
 
-struct SellerDetailRow: View {
+struct SellersListDetailRow: View {
     let key: String
     let value: String
 
@@ -308,28 +347,8 @@ struct SellerDetailRow: View {
 // MARK: - Preview
 struct SellersListView_Previews: PreviewProvider {
     static var previews: some View {
-        TabView {
-            SellersListView()
-                .tabItem {
-                    Label("Home", systemImage: "house.fill")
-                }
-            
-            Text("Requirement Screen")
-                .tabItem {
-                    Label("Requirement", systemImage: "list.bullet.rectangle")
-                }
-            
-            Text("Transactions Screen")
-                .tabItem {
-                    Label("Transactions", systemImage: "dollarsign.arrow.circle.fill")
-                }
-            
-            Text("Account Screen")
-                .tabItem {
-                    Label("Account", systemImage: "person.fill")
-                }
-        }
+        SellersListView()
+            .environmentObject(SessionStore())
     }
 }
-
 

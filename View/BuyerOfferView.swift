@@ -1,7 +1,10 @@
 import SwiftUI
 
-struct OfferView: View {
+struct BuyerOfferView: View {
+   
+    let buyer: AppUser
 
+    
     @State private var offerAmount = ""
     @State private var selectedMeasure = "Per Unit"
     @State private var startDate = Date()
@@ -11,9 +14,9 @@ struct OfferView: View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 24) {
-                    OfferSellerInfoCard()
-                    OfferBuyerRatingCard()
-                    PlaceOfferCard(
+                    BuyerOfferInfoCard(buyer: buyer)
+                    BuyerOfferRatingCard()
+                    PlaceOfferView(
                         offerAmount: $offerAmount,
                         selectedMeasure: $selectedMeasure,
                         startDate: $startDate,
@@ -37,25 +40,27 @@ struct OfferView: View {
     }
 }
 
-// MARK: - Subviews
 
-struct OfferSellerInfoCard: View {
+
+struct BuyerOfferInfoCard: View {
+    let buyer: AppUser
+
     var body: some View {
         HStack(spacing: 16) {
-            Image("seller") // Placeholder image
+            Image("seller")
                 .resizable()
                 .aspectRatio(contentMode: .fill)
-                .frame(width: 80, height: 100)
+                .frame(width: 80, height: 80)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
             
-            VStack(alignment: .leading, spacing: 6) {
-                Text("Sadul Perera")
+            VStack(alignment: .leading, spacing: 4) {
+                Text(buyer.fullName)
                     .font(.title2)
                     .fontWeight(.bold)
-                Text("City: Warakapola")
+                Text("City: \(buyer.selectedPlaceName ?? "N/A")")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
-                Text("Phone No: 071107161")
+                Text("Phone No: \(buyer.mobileNumber)")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
             }
@@ -68,18 +73,18 @@ struct OfferSellerInfoCard: View {
     }
 }
 
-struct OfferBuyerRatingCard: View {
+struct BuyerOfferRatingCard: View {
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 16) {
             Text("Buyer Rating")
                 .font(.headline)
                 .fontWeight(.bold)
             
-            OfferRatingRow(label: "Collection")
-            OfferRatingRow(label: "Arrival Time")
-            OfferRatingRow(label: "Payment")
-            OfferRatingRow(label: "Negotiation")
-            OfferRatingRow(label: "Staff")
+            BuyerOfferRatingRow(label: "Collection")
+            BuyerOfferRatingRow(label: "Arrival Time")
+            BuyerOfferRatingRow(label: "Payment")
+            BuyerOfferRatingRow(label: "Negotiation")
+            BuyerOfferRatingRow(label: "Staff")
         }
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -89,12 +94,12 @@ struct OfferBuyerRatingCard: View {
     }
 }
 
-struct PlaceOfferCard: View {
+struct PlaceOfferView: View {
     @Binding var offerAmount: String
     @Binding var selectedMeasure: String
     @Binding var startDate: Date
     @Binding var endDate: Date
-    
+
     let measures = ["Per Unit", "Per Kilo"]
 
     var body: some View {
@@ -102,35 +107,33 @@ struct PlaceOfferCard: View {
             Text("Place Your Offer")
                 .font(.headline)
                 .fontWeight(.bold)
-            
-            // Offer Form
-            VStack(alignment: .leading, spacing: 16) {
+
+      
+            VStack(alignment: .leading, spacing: 8) {
                 Text("Your offer")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
                 TextField("123", text: $offerAmount)
                     .padding()
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color(.systemGray4), lineWidth: 1)
-                    )
-                    .keyboardType(.decimalPad)
+                    .background(RoundedRectangle(cornerRadius: 12).stroke(Color(.systemGray4)))
+                    .keyboardType(.numberPad)
+            }
 
+          
+            VStack(alignment: .leading, spacing: 8) {
                 Text("Mesure")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
                 Picker("Measure", selection: $selectedMeasure) {
-                    ForEach(measures, id: \.self) {
-                        Text($0)
-                    }
+                    ForEach(measures, id: \.self) { Text($0) }
                 }
                 .pickerStyle(.menu)
                 .padding(.horizontal)
-                .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color(.systemGray4), lineWidth: 1)
-                )
+                .background(RoundedRectangle(cornerRadius: 12).stroke(Color(.systemGray4)))
+            }
 
+         
+            VStack(alignment: .leading, spacing: 8) {
                 Text("Date")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
@@ -139,11 +142,8 @@ struct PlaceOfferCard: View {
                     Text("to")
                     DatePicker("", selection: $endDate, displayedComponents: .date)
                 }
-                .padding()
-                .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color(.systemGray4), lineWidth: 1)
-                )
+                .padding(8)
+                .background(RoundedRectangle(cornerRadius: 12).stroke(Color(.systemGray4)))
             }
             
             Button(action: {}) {
@@ -164,9 +164,9 @@ struct PlaceOfferCard: View {
     }
 }
 
-// MARK: - Helper Views
 
-struct OfferRatingRow: View {
+
+struct BuyerOfferRatingRow: View {
     let label: String
     
     var body: some View {
@@ -174,11 +174,11 @@ struct OfferRatingRow: View {
             Text(label)
                 .font(.subheadline)
             Spacer()
-            HStack(spacing: 2) {
+            HStack(spacing: 4) {
                 ForEach(0..<5) { _ in
                     Image(systemName: "star.fill")
                         .foregroundColor(.yellow)
-                        .font(.subheadline)
+                        .font(.caption)
                 }
             }
         }
@@ -187,9 +187,12 @@ struct OfferRatingRow: View {
 
 
 
-struct OfferView_Previews: PreviewProvider {
+struct BuyerOfferView_Previews: PreviewProvider {
     static var previews: some View {
-        OfferView()
+        NavigationView {
+            BuyerOfferView(buyer: AppUser.mock)
+        }
     }
 }
+
 

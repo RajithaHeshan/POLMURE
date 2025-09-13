@@ -40,12 +40,10 @@ struct SellersListView: View {
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
-                // Using the renamed, unique SearchBar
                 SellersSearchBar(text: $searchText)
                     .padding(.horizontal)
                     .padding(.bottom)
 
-                // Using the renamed, unique FilterSortView
                 SellersFilterSortView(
                     sortOption: $sortOption,
                     harvestEstimate: $harvestEstimate,
@@ -57,7 +55,6 @@ struct SellersListView: View {
 
                 List {
                     ForEach(filteredProperties) { property in
-                        // Using the new, simplified row view
                         SellerListRowView(property: property)
                             .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
                             .listRowSeparator(.hidden)
@@ -87,17 +84,24 @@ struct SellersListView: View {
     }
 }
 
-// MARK: - Row View (Refactored to solve compiler error)
+// MARK: - Row View (This is where the fix is)
 struct SellerListRowView: View {
     let property: Property
     @EnvironmentObject var sessionStore: SessionStore
 
     @ViewBuilder
     private var destinationView: some View {
-        if sessionStore.appUser?.userType == .buyer {
-            SellerBidView(property: property)
+        // We safely unwrap the current user to ensure we don't crash.
+        if let currentUser = sessionStore.appUser {
+            if currentUser.userType == .buyer {
+                // This is the key change: we now pass the 'bidder' (the current user).
+                SellerBidView(property: property, bidder: currentUser)
+            } else {
+                SellerDetailView(property: property)
+            }
         } else {
-            SellerDetailView(property: property)
+            // This view is shown as a safe fallback if the user data is still loading.
+            ProgressView()
         }
     }
 
@@ -351,4 +355,5 @@ struct SellersListView_Previews: PreviewProvider {
             .environmentObject(SessionStore())
     }
 }
+
 

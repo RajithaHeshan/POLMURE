@@ -240,7 +240,7 @@ struct BuyerInformationCard: View {
     }
 }
 
-// MARK: - Preview
+
 struct BuyerHomePageView_Previews: PreviewProvider {
     static var previews: some View {
         BuyerHomePageView()

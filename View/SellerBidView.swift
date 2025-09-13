@@ -1,266 +1,55 @@
-//import SwiftUI
-//
-//struct SellerBidView: View {
-//    @State private var placeBidAmount = ""
-//    @State private var selectedMeasure = "Per Unit"
-//    @State private var startDate = Date()
-//    @State private var endDate = Date()
-//
-//    var body: some View {
-//        NavigationView {
-//            ScrollView {
-//                VStack(spacing: 24) {
-//                    SellerDetailsCard()
-//                    SellerRatingCard()
-//                    BiddingInfoCard(
-//                        placeBidAmount: $placeBidAmount,
-//                        selectedMeasure: $selectedMeasure,
-//                        startDate: $startDate,
-//                        endDate: $endDate
-//                    )
-//                }
-//                .padding()
-//            }
-//            .background(Color(.systemGray6))
-//            .navigationTitle("Sellers Details")
-//            .navigationBarTitleDisplayMode(.inline)
-//            .toolbar {
-//                ToolbarItem(placement: .navigationBarLeading) {
-//                    Button(action: {}) {
-//                        Image(systemName: "arrow.backward")
-//                            .foregroundColor(.black)
-//                    }
-//                }
-//            }
-//        }
-//    }
-//}
-//
-//struct SellerDetailsCard: View {
-//    var body: some View {
-//        VStack(spacing: 16) {
-//            HStack(spacing: 16) {
-//                Image("seller") // Placeholder image
-//                    .resizable()
-//                    .aspectRatio(contentMode: .fill)
-//                    .frame(width: 80, height: 100)
-//                    .clipShape(RoundedRectangle(cornerRadius: 12))
-//
-//                VStack(alignment: .leading, spacing: 6) {
-//                    Text("Heshan Dunumala")
-//                        .font(.title2)
-//                        .fontWeight(.bold)
-//                    
-//                    HStack(spacing: 4) {
-//                        ForEach(0..<5) { _ in
-//                            Image(systemName: "star.fill")
-//                                .foregroundColor(.yellow)
-//                                .font(.caption)
-//                        }
-//                    }
-//                }
-//                Spacer()
-//            }
-//            
-//            VStack(spacing: 8) {
-//                BidDetailRow(label: "Estimate Haravest", value: "2500 units")
-//                BidDetailRow(label: "City", value: "Warakapola")
-//                BidDetailRow(label: "Highest Bid", value: "150 units")
-//                BidDetailRow(label: "Harvest Date", value: "6/27/2025")
-//            }
-//        }
-//        .padding()
-//        .background(Color.white)
-//        .cornerRadius(16)
-//        .shadow(color: .black.opacity(0.05), radius: 10, y: 5)
-//    }
-//}
-//
-//struct SellerRatingCard: View {
-//    var body: some View {
-//        VStack(alignment: .leading, spacing: 12) {
-//            Text("Seller Rating")
-//                .font(.headline)
-//                .fontWeight(.bold)
-//            
-//            RatingRow(label: "Product availability Rating")
-//            RatingRow(label: "Unit size rating")
-//        }
-//        .padding()
-//        .frame(maxWidth: .infinity, alignment: .leading)
-//        .background(Color.white)
-//        .cornerRadius(16)
-//        .shadow(color: .black.opacity(0.05), radius: 10, y: 5)
-//    }
-//}
-//
-//struct BiddingInfoCard: View {
-//    @Binding var placeBidAmount: String
-//    @Binding var selectedMeasure: String
-//    @Binding var startDate: Date
-//    @Binding var endDate: Date
-//
-//    let measures = ["Per Unit", "Per Kilo"]
-//
-//    var body: some View {
-//        VStack(alignment: .leading, spacing: 16) {
-//            Text("Bidding")
-//                .font(.headline)
-//                .fontWeight(.bold)
-//
-//            VStack(alignment: .leading, spacing: 8) {
-//                BidDetailRow(label: "Highest Bid(Per Unit)", value: "")
-//                BidDetailRow(label: "Highest Bid by(Per Unit)", value: "")
-//                BidDetailRow(label: "Highest Bid (Per Kilo)", value: "")
-//                BidDetailRow(label: "Highest Bid by (Per Kilo)", value: "")
-//                BidDetailRow(label: "Your highest bid (Per unit)", value: "")
-//                BidDetailRow(label: "Your highest bid (Per Kilo)", value: "")
-//                BidDetailRow(label: "Contact Number", value: "")
-//            }
-//            
-//            // Bid Placement Form
-//            VStack(alignment: .leading, spacing: 16) {
-//                Text("Place you Bid")
-//                    .font(.subheadline)
-//                    .foregroundColor(.secondary)
-//                TextField("123", text: $placeBidAmount)
-//                    .padding()
-//                    .background(
-//                        RoundedRectangle(cornerRadius: 12)
-//                            .stroke(Color(.systemGray4), lineWidth: 1)
-//                    )
-//                    .keyboardType(.decimalPad)
-//
-//                Text("Mesure")
-//                    .font(.subheadline)
-//                    .foregroundColor(.secondary)
-//                Picker("Measure", selection: $selectedMeasure) {
-//                    ForEach(measures, id: \.self) {
-//                        Text($0)
-//                    }
-//                }
-//                .pickerStyle(.menu)
-//                .padding(.horizontal)
-//                .background(
-//                    RoundedRectangle(cornerRadius: 12)
-//                        .stroke(Color(.systemGray4), lineWidth: 1)
-//                )
-//
-//                Text("Date")
-//                    .font(.subheadline)
-//                    .foregroundColor(.secondary)
-//                HStack {
-//                    DatePicker("", selection: $startDate, displayedComponents: .date)
-//                    Text("to")
-//                    DatePicker("", selection: $endDate, displayedComponents: .date)
-//                }
-//                .padding()
-//                .background(
-//                    RoundedRectangle(cornerRadius: 12)
-//                        .stroke(Color(.systemGray4), lineWidth: 1)
-//                )
-//            }
-//            
-//            Button(action: {}) {
-//                Text("Bid")
-//                    .fontWeight(.semibold)
-//                    .foregroundColor(.white)
-//                    .frame(maxWidth: .infinity)
-//                    .padding()
-//                    .background(Color.green)
-//                    .cornerRadius(16)
-//            }
-//            .padding(.top)
-//        }
-//        .padding()
-//        .background(Color.white)
-//        .cornerRadius(16)
-//        .shadow(color: .black.opacity(0.05), radius: 10, y: 5)
-//    }
-//}
-//
-//struct BidDetailRow: View {
-//    let label: String
-//    let value: String
-//
-//    var body: some View {
-//        HStack {
-//            Text(label)
-//                .foregroundColor(.secondary)
-//            Spacer()
-//            Text(value)
-//                .fontWeight(.medium)
-//        }
-//        .font(.subheadline)
-//    }
-//}
-//
-//struct RatingRow: View {
-//    let label: String
-//    
-//    var body: some View {
-//        HStack {
-//            Text(label)
-//                .font(.subheadline)
-//            Spacer()
-//            HStack(spacing: 2) {
-//                ForEach(0..<5) { _ in
-//                    Image(systemName: "star.fill")
-//                        .foregroundColor(.yellow)
-//                        .font(.subheadline)
-//                }
-//            }
-//        }
-//    }
-//}
-//
-//struct SellerBidView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        SellerBidView()
-//    }
-//}
-//
-//
-//
-//
-//
-
 
 import SwiftUI
 import FirebaseFirestore
 
 struct SellerBidView: View {
-    
     let property: Property
-    
-    @State private var placeBidAmount = ""
-    @State private var selectedMeasure = "Per Unit"
-    @State private var startDate = Date()
-    @State private var endDate = Date()
+    @StateObject private var viewModel: SellerBidViewModel
 
+    
+    init(property: Property, bidder: AppUser) {
+        self.property = property
+        _viewModel = StateObject(wrappedValue: SellerBidViewModel(property: property, bidder: bidder))
+    }
+    
     var body: some View {
-        ScrollView {
-            VStack(spacing: 24) {
-                // Pass the property data to the subviews
-                SellerDetailsCard(property: property)
-                SellerRatingCard()
-                BiddingInfoCard(
-                    property: property,
-                    placeBidAmount: $placeBidAmount,
-                    selectedMeasure: $selectedMeasure,
-                    startDate: $startDate,
-                    endDate: $endDate
+        ZStack {
+            ScrollView {
+                VStack(spacing: 24) {
+                    SellerDetailsCard(property: property)
+                    SellerRatingCard()
+                   
+                    BiddingInfoCard(
+                        property: property,
+                        viewModel: viewModel
+                    )
+                }
+                .padding()
+            }
+            .background(Color(.systemGray6))
+            .navigationTitle("Sellers Details")
+            .navigationBarTitleDisplayMode(.inline)
+            .alert(isPresented: $viewModel.showAlert) {
+                Alert(
+                    title: Text(viewModel.saveSuccess ? "Success" : "Error"),
+                    message: Text(viewModel.alertMessage),
+                    dismissButton: .default(Text("OK"))
                 )
             }
-            .padding()
+            
+            if viewModel.isLoading {
+                Color.black.opacity(0.4).ignoresSafeArea()
+                ProgressView("Placing Bid...")
+                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                    .padding(16)
+                    .background(Color.black.opacity(0.6))
+                    .cornerRadius(12)
+            }
         }
-        .background(Color(.systemGray6))
-        .navigationTitle("Sellers Details")
-        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
-// MARK: - Subviews
+
 
 struct SellerDetailsCard: View {
     let property: Property
@@ -293,7 +82,7 @@ struct SellerDetailsCard: View {
             VStack(spacing: 8) {
                 BidDetailRow(label: "Estimate Haravest", value: "\(property.estimateHarvestUnits) units")
                 BidDetailRow(label: "City", value: property.cityName)
-                BidDetailRow(label: "Highest Bid", value: "150 units") // Placeholder
+                BidDetailRow(label: "Highest Bid", value: "150 units")
                 BidDetailRow(label: "Harvest Date", value: property.nextHarvestDate.dateValue().formatted(.dateTime.day().month().year()))
             }
         }
@@ -324,10 +113,7 @@ struct SellerRatingCard: View {
 
 struct BiddingInfoCard: View {
     let property: Property
-    @Binding var placeBidAmount: String
-    @Binding var selectedMeasure: String
-    @Binding var startDate: Date
-    @Binding var endDate: Date
+    @ObservedObject var viewModel: SellerBidViewModel
 
     let measures = ["Per Unit", "Per Kilo"]
 
@@ -338,21 +124,20 @@ struct BiddingInfoCard: View {
                 .fontWeight(.bold)
 
             VStack(alignment: .leading, spacing: 8) {
-                BidDetailRow(label: "Highest Bid(Per Unit)", value: "")
-                BidDetailRow(label: "Highest Bid by(Per Unit)", value: "")
-                BidDetailRow(label: "Highest Bid (Per Kilo)", value: "")
-                BidDetailRow(label: "Highest Bid by (Per Kilo)", value: "")
-                BidDetailRow(label: "Your highest bid (Per unit)", value: "")
-                BidDetailRow(label: "Your highest bid (Per Kilo)", value: "")
+                BidDetailRow(label: "Highest Bid(Per Unit)", value: viewModel.highestBidPerUnit != nil ? String(format: "%.2f", viewModel.highestBidPerUnit!.bidAmount) : "N/A")
+                BidDetailRow(label: "Highest Bid by(Per Unit)", value: viewModel.highestBidPerUnit?.bidderName ?? "N/A")
+                BidDetailRow(label: "Highest Bid (Per Kilo)", value: viewModel.highestBidPerKilo != nil ? String(format: "%.2f", viewModel.highestBidPerKilo!.bidAmount) : "N/A")
+                BidDetailRow(label: "Highest Bid by (Per Kilo)", value: viewModel.highestBidPerKilo?.bidderName ?? "N/A")
+                BidDetailRow(label: "Your highest bid (Per unit)", value: viewModel.yourBidPerUnit != nil ? String(format: "%.2f", viewModel.yourBidPerUnit!) : "")
+                BidDetailRow(label: "Your highest bid (Per Kilo)", value: viewModel.yourBidPerKilo != nil ? String(format: "%.2f", viewModel.yourBidPerKilo!) : "")
                 BidDetailRow(label: "Contact Number", value: property.mobileNumber)
             }
             
-            // Bid Placement Form
             VStack(alignment: .leading, spacing: 16) {
                 Text("Place you Bid")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
-                TextField("123", text: $placeBidAmount)
+                TextField("123", text: $viewModel.bidAmountString)
                     .padding()
                     .background(
                         RoundedRectangle(cornerRadius: 12)
@@ -363,7 +148,7 @@ struct BiddingInfoCard: View {
                 Text("Mesure")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
-                Picker("Measure", selection: $selectedMeasure) {
+                Picker("Measure", selection: $viewModel.selectedMeasure) {
                     ForEach(measures, id: \.self) {
                         Text($0)
                     }
@@ -379,9 +164,9 @@ struct BiddingInfoCard: View {
                     .font(.subheadline)
                     .foregroundColor(.secondary)
                 HStack {
-                    DatePicker("", selection: $startDate, displayedComponents: .date)
+                    DatePicker("", selection: $viewModel.startDate, displayedComponents: .date)
                     Text("to")
-                    DatePicker("", selection: $endDate, displayedComponents: .date)
+                    DatePicker("", selection: $viewModel.endDate, displayedComponents: .date)
                 }
                 .padding()
                 .background(
@@ -390,7 +175,7 @@ struct BiddingInfoCard: View {
                 )
             }
             
-            Button(action: {}) {
+            Button(action: { viewModel.saveBid() }) {
                 Text("Bid")
                     .fontWeight(.semibold)
                     .foregroundColor(.white)
@@ -443,12 +228,10 @@ struct RatingRow: View {
     }
 }
 
-// MARK: - Preview
-
 struct SellerBidView_Previews: PreviewProvider {
     static var previews: some View {
-        // This preview now correctly uses the shared mock object from the Property model.
-        SellerBidView(property: Property.mock)
+        
+        SellerBidView(property: Property.mock, bidder: AppUser.mock)
     }
 }
 

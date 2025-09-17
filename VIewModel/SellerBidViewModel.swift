@@ -1,112 +1,3 @@
-//import SwiftUI
-//import FirebaseFirestore
-//
-//@MainActor
-//class SellerBidViewModel: ObservableObject {
-//    
-//    @Published var bidAmountString = ""
-//    @Published var selectedMeasure = "Per Unit"
-//    @Published var startDate = Date()
-//    @Published var endDate = Date()
-//    
-//  
-//    @Published var yourBidPerUnit: Double?
-//    @Published var yourBidPerKilo: Double?
-//    @Published var isLoading = false
-//    @Published var showAlert = false
-//    @Published var alertMessage = ""
-//    @Published var saveSuccess = false
-//    
-//    private let property: Property
-//    private let bidder: AppUser
-//    private let db = Firestore.firestore()
-//    private var bidsListener: ListenerRegistration?
-//
-//    init(property: Property, bidder: AppUser) {
-//        self.property = property
-//        self.bidder = bidder
-//        fetchYourBids() // Fetch existing bids when the view loads
-//    }
-//    
-//    deinit {
-//        bidsListener?.remove()
-//    }
-//
-//    func saveBid() {
-//        guard let bidAmount = Double(bidAmountString), bidAmount > 0 else {
-//            alertMessage = "Please enter a valid bid amount."
-//            showAlert = true
-//            return
-//        }
-//        
-//        isLoading = true
-//        
-//        let bidData: [String: Any] = [
-//            "propertyId": property.id,
-//            "bidderId": bidder.id,
-//            "bidderName": bidder.fullName,
-//            "bidAmount": bidAmount,
-//            "measure": selectedMeasure,
-//            "startDate": Timestamp(date: startDate),
-//            "endDate": Timestamp(date: endDate),
-//            "createdAt": Timestamp(date: Date())
-//        ]
-//
-//        Task {
-//            do {
-//                try await db.collection("bids").addDocument(data: bidData)
-//                
-//                alertMessage = "Your bid was placed successfully!"
-//                saveSuccess = true
-//            } catch {
-//                print("🔥🔥🔥 Firestore Save Error: \(error.localizedDescription)")
-//                alertMessage = "Failed to place your bid. Please try again."
-//                saveSuccess = false
-//            }
-//            isLoading = false
-//            showAlert = true
-//        }
-//    }
-//    
-//    private func fetchYourBids() {
-//        bidsListener?.remove()
-//        
-//        bidsListener = db.collection("bids")
-//            .whereField("propertyId", isEqualTo: property.id)
-//            .whereField("bidderId", isEqualTo: bidder.id)
-//            .addSnapshotListener { [weak self] querySnapshot, error in
-//                guard let self = self, let documents = querySnapshot?.documents else {
-//                    print("Error fetching bids: \(error?.localizedDescription ?? "Unknown error")")
-//                    return
-//                }
-//                
-//                // Reset bids before checking the new data
-//                self.yourBidPerUnit = nil
-//                self.yourBidPerKilo = nil
-//                
-//                for document in documents {
-//                    let data = document.data()
-//                    let amount = data["bidAmount"] as? Double ?? 0
-//                    if let measure = data["measure"] as? String {
-//                        if measure == "Per Unit" {
-//                            // Find the highest "Per Unit" bid
-//                            if amount > (self.yourBidPerUnit ?? 0) {
-//                                self.yourBidPerUnit = amount
-//                            }
-//                        } else {
-//                            // Find the highest "Per Kilo" bid
-//                            if amount > (self.yourBidPerKilo ?? 0) {
-//                                self.yourBidPerKilo = amount
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//    }
-//}
-//
-
-
 import SwiftUI
 import FirebaseFirestore
 
@@ -122,7 +13,7 @@ class SellerBidViewModel: ObservableObject {
     @Published var yourBidPerUnit: Double?
     @Published var yourBidPerKilo: Double?
     
-    // New properties to hold the overall highest bids
+   
     @Published var highestBidPerUnit: Bid?
     @Published var highestBidPerKilo: Bid?
     
@@ -205,4 +96,3 @@ class SellerBidViewModel: ObservableObject {
             }
     }
 }
-

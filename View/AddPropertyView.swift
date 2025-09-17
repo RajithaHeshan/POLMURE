@@ -227,7 +227,7 @@ struct AddPropertyFormField<Content: View>: View {
 }
 
 
-// MARK: - Preview
+
 struct AddPropertyView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {

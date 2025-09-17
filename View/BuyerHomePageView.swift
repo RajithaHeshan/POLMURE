@@ -45,7 +45,6 @@ struct BuyerHomeContentView: View {
 }
 
 struct BuyerHeaderView: View {
-    // Added to handle the logout action
     @EnvironmentObject var sessionStore: SessionStore
 
     var body: some View {
@@ -68,7 +67,6 @@ struct BuyerHeaderView: View {
                     .foregroundColor(.black)
             }
             
-            // This is the new Logout Button
             Button(action: {
                 try? sessionStore.signOut()
             }) {
@@ -142,7 +140,11 @@ struct BuyerActionsGridView: View {
                 BuyerQuickActionCard(title: "sellers", imageName: "person.badge.plus")
             }
 
-            BuyerQuickActionCard(title: "BIDS", imageName: "gavel.fill")
+             //This is the key change: The "BIDS" card now navigates to the details view
+            NavigationLink(destination: MyBidsDetailsView()) {
+                BuyerQuickActionCard(title: "BIDS", imageName: "gavel.fill")
+            }
+            
             BuyerQuickActionCard(title: "Offers", imageName: "tag.fill")
         }
     }
@@ -240,11 +242,13 @@ struct BuyerInformationCard: View {
     }
 }
 
-
+ //MARK: - Preview
 struct BuyerHomePageView_Previews: PreviewProvider {
     static var previews: some View {
         BuyerHomePageView()
             .environmentObject(SessionStore())
     }
 }
+
+
 

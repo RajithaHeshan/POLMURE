@@ -152,4 +152,3 @@ struct SellerDetailView_Previews: PreviewProvider {
         SellerDetailView(property: Property.mock)
     }
 }
-

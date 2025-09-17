@@ -103,4 +103,3 @@ struct BuyerDetailView_Previews: PreviewProvider {
         }
     }
 }
-

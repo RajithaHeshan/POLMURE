@@ -1,143 +1,3 @@
-//import Foundation
-//import FirebaseFirestore
-//
-//struct Property: Identifiable, Codable {
-//    var id: String
-//    var ownerId: String
-//    var propertyName: String
-//    var sellerName: String
-//    var mobileNumber: String
-//    var estimateHarvestUnits: Int
-//    var nextHarvestDate: Timestamp
-//    var location: GeoPoint
-//    var cityName: String
-//    var createdAt: Timestamp
-//    
-//    var daysUntilNextHarvest: Int {
-//        let calendar = Calendar.current
-//        let today = calendar.startOfDay(for: Date())
-//        let harvestDay = calendar.startOfDay(for: nextHarvestDate.dateValue())
-//        let components = calendar.dateComponents([.day], from: today, to: harvestDay)
-//        return components.day ?? 0
-//    }
-//    
-//    init?(snapshot: QueryDocumentSnapshot) {
-//        let data = snapshot.data()
-//        
-//        guard
-//            let ownerId = data["ownerId"] as? String,
-//            let propertyName = data["propertyName"] as? String,
-//            let sellerName = data["sellerName"] as? String,
-//            let mobileNumber = data["mobileNumber"] as? String,
-//            let estimateHarvestUnits = data["estimateHarvestUnits"] as? Int,
-//            let nextHarvestDate = data["nextHarvestDate"] as? Timestamp,
-//            let location = data["location"] as? GeoPoint,
-//            let cityName = data["cityName"] as? String,
-//            let createdAt = data["createdAt"] as? Timestamp
-//        else {
-//            return nil
-//        }
-//        
-//        self.id = snapshot.documentID
-//        self.ownerId = ownerId
-//        self.propertyName = propertyName
-//        self.sellerName = sellerName
-//        self.mobileNumber = mobileNumber
-//        self.estimateHarvestUnits = estimateHarvestUnits
-//        self.nextHarvestDate = nextHarvestDate
-//        self.location = location
-//        self.cityName = cityName
-//        self.createdAt = createdAt
-//    }
-//}
-//
-//
-
-//import Foundation
-//import FirebaseFirestore
-//
-//struct Property: Identifiable, Codable {
-//    var id: String
-//    var ownerId: String
-//    var propertyName: String
-//    var sellerName: String
-//    var mobileNumber: String
-//    var estimateHarvestUnits: Int
-//    var nextHarvestDate: Timestamp
-//    var location: GeoPoint
-//    var cityName: String
-//    var createdAt: Timestamp
-//    
-//    // This is the memberwise initializer that your previews need.
-//    init(id: String, ownerId: String, propertyName: String, sellerName: String, mobileNumber: String, estimateHarvestUnits: Int, nextHarvestDate: Timestamp, location: GeoPoint, cityName: String, createdAt: Timestamp) {
-//        self.id = id
-//        self.ownerId = ownerId
-//        self.propertyName = propertyName
-//        self.sellerName = sellerName
-//        self.mobileNumber = mobileNumber
-//        self.estimateHarvestUnits = estimateHarvestUnits
-//        self.nextHarvestDate = nextHarvestDate
-//        self.location = location
-//        self.cityName = cityName
-//        self.createdAt = createdAt
-//    }
-//    
-//    // This initializer allows you to create a Property from a Firestore document.
-//    init?(snapshot: QueryDocumentSnapshot) {
-//        let data = snapshot.data()
-//        guard
-//            let ownerId = data["ownerId"] as? String,
-//            let propertyName = data["propertyName"] as? String,
-//            let sellerName = data["sellerName"] as? String,
-//            let mobileNumber = data["mobileNumber"] as? String,
-//            let estimateHarvestUnits = data["estimateHarvestUnits"] as? Int,
-//            let nextHarvestDate = data["nextHarvestDate"] as? Timestamp,
-//            let location = data["location"] as? GeoPoint,
-//            let cityName = data["cityName"] as? String,
-//            let createdAt = data["createdAt"] as? Timestamp
-//        else {
-//            return nil
-//        }
-//        
-//        self.id = snapshot.documentID
-//        self.ownerId = ownerId
-//        self.propertyName = propertyName
-//        self.sellerName = sellerName
-//        self.mobileNumber = mobileNumber
-//        self.estimateHarvestUnits = estimateHarvestUnits
-//        self.nextHarvestDate = nextHarvestDate
-//        self.location = location
-//        self.cityName = cityName
-//        self.createdAt = createdAt
-//    }
-//    
-//    var daysUntilNextHarvest: Int {
-//        let calendar = Calendar.current
-//        let today = calendar.startOfDay(for: Date())
-//        let harvestDay = calendar.startOfDay(for: nextHarvestDate.dateValue())
-//        let components = calendar.dateComponents([.day], from: today, to: harvestDay)
-//        return components.day ?? 0
-//    }
-//
-//    // This is a shared mock object for all your previews.
-//    static var mock: Property {
-//        Property(
-//            id: "1",
-//            ownerId: "1",
-//            propertyName: "Warakapola 1",
-//            sellerName: "Heshan Dunumala",
-//            mobileNumber: "071107161",
-//            estimateHarvestUnits: 2500,
-//            nextHarvestDate: Timestamp(date: Date()),
-//            location: GeoPoint(latitude: 7.8731, longitude: 80.7718),
-//            cityName: "Warakapola",
-//            createdAt: Timestamp(date: Date())
-//        )
-//    }
-//}
-//
-
-
 import Foundation
 import FirebaseFirestore
 
@@ -153,7 +13,7 @@ struct Property: Identifiable, Codable {
     var cityName: String
     var createdAt: Timestamp
     
-    // This is the memberwise initializer that your previews need.
+   
     init(id: String, ownerId: String, propertyName: String, sellerName: String, mobileNumber: String, estimateHarvestUnits: Int, nextHarvestDate: Timestamp, location: GeoPoint, cityName: String, createdAt: Timestamp) {
         self.id = id
         self.ownerId = ownerId
@@ -203,7 +63,7 @@ struct Property: Identifiable, Codable {
         return components.day ?? 0
     }
 
-    // This is a shared mock object for all your previews.
+ 
     static var mock: Property {
         Property(
             id: "1",
@@ -219,5 +79,8 @@ struct Property: Identifiable, Codable {
         )
     }
 }
+
+
+
 
 

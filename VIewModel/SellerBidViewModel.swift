@@ -1,3 +1,4 @@
+
 import SwiftUI
 import FirebaseFirestore
 
@@ -9,11 +10,9 @@ class SellerBidViewModel: ObservableObject {
     @Published var startDate = Date()
     @Published var endDate = Date()
     
-    
     @Published var yourBidPerUnit: Double?
     @Published var yourBidPerKilo: Double?
     
-   
     @Published var highestBidPerUnit: Bid?
     @Published var highestBidPerKilo: Bid?
     
@@ -30,7 +29,7 @@ class SellerBidViewModel: ObservableObject {
     init(property: Property, bidder: AppUser) {
         self.property = property
         self.bidder = bidder
-        fetchBids() // This now fetches both your bids and the highest bids
+        fetchBids()
     }
     
     deinit {
@@ -40,6 +39,12 @@ class SellerBidViewModel: ObservableObject {
     func saveBid() {
         guard let bidAmount = Double(bidAmountString), bidAmount > 0 else {
             alertMessage = "Please enter a valid bid amount."
+            showAlert = true
+            return
+        }
+        
+        guard !bidder.id.isEmpty else {
+            alertMessage = "Error: Could not identify the current user."
             showAlert = true
             return
         }
@@ -54,7 +59,8 @@ class SellerBidViewModel: ObservableObject {
             "measure": selectedMeasure,
             "startDate": Timestamp(date: startDate),
             "endDate": Timestamp(date: endDate),
-            "createdAt": Timestamp(date: Date())
+            "createdAt": Timestamp(date: Date()),
+            "status": BidStatus.pending.rawValue // This is the key update
         ]
 
         Task {

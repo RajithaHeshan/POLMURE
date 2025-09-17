@@ -1,3 +1,163 @@
+//import SwiftUI
+//
+//struct MyBidsDetailsView: View {
+//    @StateObject private var viewModel = MyBidsDetailsViewModel()
+//    
+//    var body: some View {
+//        NavigationView {
+//            ZStack {
+//                if viewModel.isLoading {
+//                    ProgressView("Loading Your Bids...")
+//                } else if let errorMessage = viewModel.errorMessage {
+//                    VStack(spacing: 16) {
+//                        Image(systemName: "exclamationmark.triangle.fill")
+//                            .font(.largeTitle)
+//                            .foregroundColor(.red)
+//                        Text(errorMessage)
+//                            .multilineTextAlignment(.center)
+//                            .padding(.horizontal)
+//                    }
+//                } else if viewModel.detailedBids.isEmpty {
+//                    VStack(spacing: 16) {
+//                        Image(systemName: "gavel.fill")
+//                            .font(.largeTitle)
+//                            .foregroundColor(.secondary)
+//                        Text("No Bids Found")
+//                            .font(.title2)
+//                        Text("You haven't placed any bids yet.")
+//                            .foregroundColor(.secondary)
+//                    }
+//                } else {
+//                    List {
+//                        ForEach(viewModel.detailedBids) { detail in
+//                            BidDetailRowView(detail: detail)
+//                                .swipeActions(edge: .trailing) {
+//                                    if detail.status == "Active" {
+//                                        Button(role: .destructive) {
+//                                            viewModel.withdraw(bidDetails: detail)
+//                                        } label: {
+//                                            Label("Withdraw", systemImage: "trash.fill")
+//                                        }
+//                                    }
+//                                }
+//                        }
+//                    }
+//                    .listStyle(.plain)
+//                    .refreshable {
+//                        viewModel.fetchDetailedBids()
+//                    }
+//                }
+//            }
+//            .navigationTitle("My Bids")
+//            .navigationBarTitleDisplayMode(.inline)
+//            
+//            // THIS IS THE NEW LINE THAT FORCES THE REFRESH
+//            .onAppear {
+//                viewModel.fetchDetailedBids()
+//            }
+//        }
+//    }
+//}
+//
+//// A dedicated view for a single row in the list
+//struct BidDetailRowView: View {
+//    let detail: BidDetails
+//    
+//    private var statusColor: Color {
+//        return detail.status == "Active" ? .green : .red
+//    }
+//    
+//    var body: some View {
+//        VStack(alignment: .leading, spacing: 12) {
+//            HStack {
+//                Text(detail.property.sellerName)
+//                    .font(.headline)
+//                    .fontWeight(.bold)
+//                Spacer()
+//                Text(detail.status)
+//                    .font(.caption.bold())
+//                    .foregroundColor(.white)
+//                    .padding(.horizontal, 8)
+//                    .padding(.vertical, 4)
+//                    .background(statusColor)
+//                    .clipShape(Capsule())
+//            }
+//            Divider()
+//            VStack(spacing: 8) {
+//                BidInfoRow(label: "My Bid",
+//                           amount: detail.myBid.bidAmount,
+//                           measure: detail.myBid.measure,
+//                           isHighlighted: true)
+//                
+//                if let highestBid = detail.highestBid {
+//                    BidInfoRow(label: "Highest Bid",
+//                               amount: highestBid.bidAmount,
+//                               measure: highestBid.measure)
+//                }
+//                
+//                BidInfoRow(label: "Harvest Date", value: detail.property.nextHarvestDate.dateValue().formatted(date: .abbreviated, time: .omitted))
+//                
+//                BidInfoRow(label: "Est. Harvest", value: "\(detail.property.estimateHarvestUnits) units")
+//            }
+//        }
+//        .padding(.vertical, 8)
+//    }
+//}
+//
+//// A helper view to format rows consistently
+//struct BidInfoRow: View {
+//    let label: String
+//    let value: String?
+//    let amount: Double?
+//    let measure: String?
+//    let isHighlighted: Bool
+//
+//    init(label: String, value: String, isHighlighted: Bool = false) {
+//        self.label = label
+//        self.value = value
+//        self.amount = nil
+//        self.measure = nil
+//        self.isHighlighted = isHighlighted
+//    }
+//    
+//    init(label: String, amount: Double, measure: String, isHighlighted: Bool = false) {
+//        self.label = label
+//        self.value = nil
+//        self.amount = amount
+//        self.measure = measure
+//        self.isHighlighted = isHighlighted
+//    }
+//
+//    var body: some View {
+//        HStack {
+//            Text(label)
+//                .font(.subheadline)
+//                .foregroundColor(.secondary)
+//            
+//            Spacer()
+//            
+//            if let value = value {
+//                Text(value)
+//                    .fontWeight(isHighlighted ? .bold : .regular)
+//            } else if let amount = amount, let measure = measure {
+//                Text("LKR \(String(format: "%.2f", amount))")
+//                    .fontWeight(isHighlighted ? .bold : .regular)
+//                + Text(" / \(measure)")
+//                    .font(.caption)
+//                    .foregroundColor(.secondary)
+//            }
+//        }
+//    }
+//}
+//
+//
+//struct MyBidsDetailsView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        MyBidsDetailsView()
+//    }
+//}
+
+
 import SwiftUI
 
 struct MyBidsDetailsView: View {
@@ -9,37 +169,13 @@ struct MyBidsDetailsView: View {
                 if viewModel.isLoading {
                     ProgressView("Loading Your Bids...")
                 } else if let errorMessage = viewModel.errorMessage {
-                    VStack(spacing: 16) {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .font(.largeTitle)
-                            .foregroundColor(.red)
-                        Text(errorMessage)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal)
-                    }
+                    Text(errorMessage) // Simplified error view
                 } else if viewModel.detailedBids.isEmpty {
-                    VStack(spacing: 16) {
-                        Image(systemName: "gavel.fill")
-                            .font(.largeTitle)
-                            .foregroundColor(.secondary)
-                        Text("No Bids Found")
-                            .font(.title2)
-                        Text("You haven't placed any bids yet.")
-                            .foregroundColor(.secondary)
-                    }
+                    Text("No Bids Found") // Simplified empty view
                 } else {
                     List {
                         ForEach(viewModel.detailedBids) { detail in
-                            BidDetailRowView(detail: detail)
-                                .swipeActions(edge: .trailing) {
-                                    if detail.status == "Active" {
-                                        Button(role: .destructive) {
-                                            viewModel.withdraw(bidDetails: detail)
-                                        } label: {
-                                            Label("Withdraw", systemImage: "trash.fill")
-                                        }
-                                    }
-                                }
+                            BidDetailRowView(detail: detail, viewModel: viewModel)
                         }
                     }
                     .listStyle(.plain)
@@ -50,8 +186,6 @@ struct MyBidsDetailsView: View {
             }
             .navigationTitle("My Bids")
             .navigationBarTitleDisplayMode(.inline)
-            
-            // THIS IS THE NEW LINE THAT FORCES THE REFRESH
             .onAppear {
                 viewModel.fetchDetailedBids()
             }
@@ -59,12 +193,22 @@ struct MyBidsDetailsView: View {
     }
 }
 
-// A dedicated view for a single row in the list
 struct BidDetailRowView: View {
     let detail: BidDetails
-    
+    // We need the viewModel to perform the cancel action
+    @ObservedObject var viewModel: MyBidsDetailsViewModel
+
     private var statusColor: Color {
-        return detail.status == "Active" ? .green : .red
+        switch detail.myBid.status {
+        case .pending:
+            return .orange
+        case .active:
+            return .green
+        case .cancelled:
+            return .gray
+        case .expired:
+            return .red
+        }
     }
     
     var body: some View {
@@ -74,7 +218,8 @@ struct BidDetailRowView: View {
                     .font(.headline)
                     .fontWeight(.bold)
                 Spacer()
-                Text(detail.status)
+                // We now display the status from the bid object itself
+                Text(detail.myBid.status.rawValue)
                     .font(.caption.bold())
                     .foregroundColor(.white)
                     .padding(.horizontal, 8)
@@ -82,74 +227,58 @@ struct BidDetailRowView: View {
                     .background(statusColor)
                     .clipShape(Capsule())
             }
+            
             Divider()
+            
             VStack(spacing: 8) {
-                BidInfoRow(label: "My Bid",
-                           amount: detail.myBid.bidAmount,
-                           measure: detail.myBid.measure,
-                           isHighlighted: true)
-                
+                BidInfoRow(label: "My Bid", amount: detail.myBid.bidAmount, measure: detail.myBid.measure, isHighlighted: true)
                 if let highestBid = detail.highestBid {
-                    BidInfoRow(label: "Highest Bid",
-                               amount: highestBid.bidAmount,
-                               measure: highestBid.measure)
+                    BidInfoRow(label: "Highest Bid", amount: highestBid.bidAmount, measure: highestBid.measure)
                 }
-                
                 BidInfoRow(label: "Harvest Date", value: detail.property.nextHarvestDate.dateValue().formatted(date: .abbreviated, time: .omitted))
-                
-                BidInfoRow(label: "Est. Harvest", value: "\(detail.property.estimateHarvestUnits) units")
+            }
+            
+            // This section adds the "Actions" with the Cancel button
+            if detail.myBid.status == .pending {
+                Divider()
+                HStack {
+                    Text("Actions")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                    Spacer()
+                    Button("Cancel Bid") {
+                        viewModel.cancelBid(bidDetails: detail)
+                    }
+                    .buttonStyle(.bordered)
+                    .tint(.red)
+                }
             }
         }
         .padding(.vertical, 8)
     }
 }
 
-// A helper view to format rows consistently
+// BidInfoRow and Preview structs remain the same as before
 struct BidInfoRow: View {
     let label: String
     let value: String?
     let amount: Double?
     let measure: String?
     let isHighlighted: Bool
-
-    init(label: String, value: String, isHighlighted: Bool = false) {
-        self.label = label
-        self.value = value
-        self.amount = nil
-        self.measure = nil
-        self.isHighlighted = isHighlighted
-    }
-    
-    init(label: String, amount: Double, measure: String, isHighlighted: Bool = false) {
-        self.label = label
-        self.value = nil
-        self.amount = amount
-        self.measure = measure
-        self.isHighlighted = isHighlighted
-    }
-
+    init(label: String, value: String, isHighlighted: Bool = false) { self.label = label; self.value = value; self.amount = nil; self.measure = nil; self.isHighlighted = isHighlighted }
+    init(label: String, amount: Double, measure: String, isHighlighted: Bool = false) { self.label = label; self.value = nil; self.amount = amount; self.measure = measure; self.isHighlighted = isHighlighted }
     var body: some View {
         HStack {
-            Text(label)
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-            
+            Text(label).font(.subheadline).foregroundColor(.secondary)
             Spacer()
-            
             if let value = value {
-                Text(value)
-                    .fontWeight(isHighlighted ? .bold : .regular)
+                Text(value).fontWeight(isHighlighted ? .bold : .regular)
             } else if let amount = amount, let measure = measure {
-                Text("LKR \(String(format: "%.2f", amount))")
-                    .fontWeight(isHighlighted ? .bold : .regular)
-                + Text(" / \(measure)")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                Text("LKR \(String(format: "%.2f", amount))").fontWeight(isHighlighted ? .bold : .regular) + Text(" / \(measure)").font(.caption).foregroundColor(.secondary)
             }
         }
     }
 }
-
 
 struct MyBidsDetailsView_Previews: PreviewProvider {
     static var previews: some View {

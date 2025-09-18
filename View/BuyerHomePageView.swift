@@ -8,7 +8,7 @@ struct BuyerHomePageView: View {
                     Label("Home", systemImage: "house.fill")
                 }
             
-            // This now points to the new TransactionsView
+           
             TransactionsView()
                 .tabItem {
                     Label("Transactions", systemImage: "dollarsign.circle.fill")

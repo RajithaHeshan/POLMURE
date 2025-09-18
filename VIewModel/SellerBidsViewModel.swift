@@ -6,8 +6,10 @@ import FirebaseFirestore
 import FirebaseAuth
 import Combine
 
+
 struct SellerBidInfo: Identifiable {
     var id: String { bid.id ?? UUID().uuidString }
+    
     var bid: Bid
     let buyer: AppUser
     let property: Property
@@ -81,10 +83,38 @@ class SellerBidsViewModel: ObservableObject {
     func confirmBid(bidInfo: SellerBidInfo) {
         guard let bidId = bidInfo.bid.id else { return }
         
-        db.collection("bids").document(bidId).updateData(["status": BidStatus.active.rawValue]) { [weak self] error in
+        // 1. Manually create a dictionary representing the transaction
+        let transactionData: [String: Any] = [
+            "bidId": bidId,
+            "propertyId": bidInfo.property.id,
+            "buyerId": bidInfo.buyer.id,
+            "sellerId": bidInfo.property.ownerId,
+            "buyerName": bidInfo.buyer.fullName,
+            "propertyName": bidInfo.property.propertyName,
+            "bidAmount": bidInfo.bid.bidAmount,
+            "measure": bidInfo.bid.measure,
+            "estimatedHarvest": bidInfo.property.estimateHarvestUnits,
+            "createdAt": Timestamp(date: Date())
+        ]
+        
+        // 2. Use a batch write to perform both actions at once for safety.
+        let batch = db.batch()
+        
+        // Action A: Update the bid status to 'Active'
+        let bidRef = db.collection("bids").document(bidId)
+        batch.updateData(["status": BidStatus.active.rawValue], forDocument: bidRef)
+        
+        // Action B: Create the new transaction document from our dictionary
+        let transactionRef = db.collection("transactions").document()
+        batch.setData(transactionData, forDocument: transactionRef)
+        
+        // 3. Commit both changes to the database
+        batch.commit { [weak self] error in
             if let error = error {
-                self?.errorMessage = "Failed to confirm bid."
+                self?.errorMessage = "Failed to confirm bid and create transaction."
+                print("Batch commit failed: \(error)")
             } else {
+                // Update the UI instantly
                 if let index = self?.bidInfos.firstIndex(where: { $0.id == bidId }) {
                     self?.bidInfos[index].bid.status = .active
                 }
@@ -92,7 +122,7 @@ class SellerBidsViewModel: ObservableObject {
         }
     }
     
-
+    // MARK: - Private Helper Functions
     
     private func fetchSellerPropertyIDs(sellerId: String) async throws -> [String] {
         let snapshot = try await db.collection("properties").whereField("ownerId", isEqualTo: sellerId).getDocuments()
@@ -104,63 +134,22 @@ class SellerBidsViewModel: ObservableObject {
         return snapshot.documents.compactMap { try? $0.data(as: Bid.self) }
     }
     
-    
     private func fetchUser(withId userId: String) async throws -> AppUser {
         let docSnapshot = try await db.collection("users").document(userId).getDocument()
 
-        guard let data = docSnapshot.data(), docSnapshot.exists else {
-            throw NSError(domain: "DataError", code: 404, userInfo: [NSLocalizedDescriptionKey: "User document with ID '\(userId)' was not found."])
+        guard let user = AppUser(snapshot: docSnapshot) else {
+             throw NSError(domain: "DataError", code: 0, userInfo: [NSLocalizedDescriptionKey: "Could not decode AppUser with ID '\(userId)'."])
         }
-
-    
-        let id = docSnapshot.documentID
-        let username = data["username"] as? String ?? ""
-        let fullName = data["fullName"] as? String ?? ""
-        let email = data["email"] as? String ?? ""
-        let mobileNumber = data["mobileNumber"] as? String ?? ""
-        let userTypeString = data["userType"] as? String ?? "Buyer"
-        let userType = UserType(rawValue: userTypeString) ?? .buyer
-        let createdAt = data["createdAt"] as? Timestamp ?? Timestamp()
-        let location = data["location"] as? GeoPoint
-        let selectedPlaceName = data["selectedPlaceName"] as? String
         
-        return AppUser(id: id, username: username, fullName: fullName, email: email, userType: userType, createdAt: createdAt, mobileNumber: mobileNumber, location: location, selectedPlaceName: selectedPlaceName)
+        return user
     }
 
-    
     private func fetchProperty(withId propertyId: String) async throws -> Property {
         let docSnapshot = try await db.collection("properties").document(propertyId).getDocument()
 
-        guard let data = docSnapshot.data(), docSnapshot.exists else {
-            throw NSError(domain: "DataError", code: 404, userInfo: [NSLocalizedDescriptionKey: "Property document with ID '\(propertyId)' was not found."])
-        }
-        
-        guard
-            let ownerId = data["ownerId"] as? String,
-            let propertyName = data["propertyName"] as? String,
-            let sellerName = data["sellerName"] as? String,
-            let mobileNumber = data["mobileNumber"] as? String,
-            let estimateHarvestUnits = data["estimateHarvestUnits"] as? Int,
-            let nextHarvestDate = data["nextHarvestDate"] as? Timestamp,
-            let location = data["location"] as? GeoPoint,
-            let cityName = data["cityName"] as? String,
-            let createdAt = data["createdAt"] as? Timestamp
-        else {
+        guard let property = Property(snapshot: docSnapshot as! QueryDocumentSnapshot) else {
             throw NSError(domain: "DataError", code: 0, userInfo: [NSLocalizedDescriptionKey: "Could not decode property with ID '\(propertyId)'."])
         }
-        
-        let property = Property(
-            id: docSnapshot.documentID,
-            ownerId: ownerId,
-            propertyName: propertyName,
-            sellerName: sellerName,
-            mobileNumber: mobileNumber,
-            estimateHarvestUnits: estimateHarvestUnits,
-            nextHarvestDate: nextHarvestDate,
-            location: location,
-            cityName: cityName,
-            createdAt: createdAt
-        )
         
         return property
     }

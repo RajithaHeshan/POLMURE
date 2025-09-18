@@ -8,7 +8,8 @@ struct BuyerHomePageView: View {
                     Label("Home", systemImage: "house.fill")
                 }
             
-            Text("Transactions Screen")
+            // This now points to the new TransactionsView
+            TransactionsView()
                 .tabItem {
                     Label("Transactions", systemImage: "dollarsign.circle.fill")
                 }
@@ -54,6 +55,7 @@ struct BuyerHeaderView: View {
                 .foregroundColor(.gray)
             
             VStack(alignment: .leading) {
+                // You can make this dynamic later
                 Text("Hi, Ishan 👋")
                     .font(.title)
                     .fontWeight(.bold)
@@ -103,7 +105,7 @@ struct RecentViewsSection: View {
 struct RecentViewCard: View {
     var body: some View {
         HStack {
-            Image("seller") // Placeholder
+            Image("seller")
                 .resizable()
                 .frame(width: 60, height: 60)
                 .cornerRadius(8)
@@ -133,16 +135,15 @@ struct BuyerActionsGridView: View {
     var body: some View {
         LazyVGrid(columns: columns, spacing: 16) {
             NavigationLink(destination: BuyersListView()) {
-                 BuyerQuickActionCard(title: "Buyers", imageName: "person.2.fill")
+                BuyerQuickActionCard(title: "Buyers", imageName: "person.2.fill")
             }
             
             NavigationLink(destination: SellersListView()) {
-                BuyerQuickActionCard(title: "sellers", imageName: "person.badge.plus")
+                BuyerQuickActionCard(title: "Sellers", imageName: "person.badge.plus")
             }
 
-             //This is the key change: The "BIDS" card now navigates to the details view
             NavigationLink(destination: MyBidsDetailsView()) {
-                BuyerQuickActionCard(title: "BIDS", imageName: "gavel.fill")
+                BuyerQuickActionCard(title: "My BIDS", imageName: "gavel.fill")
             }
             
             BuyerQuickActionCard(title: "Offers", imageName: "tag.fill")
@@ -242,13 +243,10 @@ struct BuyerInformationCard: View {
     }
 }
 
- //MARK: - Preview
+// MARK: - Preview
 struct BuyerHomePageView_Previews: PreviewProvider {
     static var previews: some View {
         BuyerHomePageView()
             .environmentObject(SessionStore())
     }
 }
-
-
-

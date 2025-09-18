@@ -13,7 +13,8 @@ struct SellerHomePageView: View {
                     Label("Requirement", systemImage: "list.bullet")
                 }
             
-            Text("Transactions Screen")
+            
+            TransactionsView()
                 .tabItem {
                     Label("Transactions", systemImage: "dollarsign.circle")
                 }
@@ -65,6 +66,7 @@ struct HeaderView: View {
             .frame(width: 36, height: 36)
             .clipShape(Circle())
             
+            // You can make this dynamic later
             Text("Hi, Heshan 👋")
                 .font(.title)
                 .fontWeight(.bold)
@@ -115,7 +117,7 @@ struct YourPropertiesSection: View {
 struct PropertyCardView: View {
     var body: some View {
         HStack(spacing: 16) {
-            Image(systemName: "person.crop.square.fill")
+            Image(systemName: "photo.fill") // Placeholder
                 .resizable()
                 .scaledToFill()
                 .frame(width: 90, height: 150)
@@ -168,17 +170,17 @@ struct QuickActionGridView: View {
     var body: some View {
         LazyVGrid(columns: columns, spacing: 16) {
             NavigationLink(destination: BuyersListView()) {
-                 QuickActionCard(title: "Buyers", imageName: "person.2.fill", isSymbol: true)
+                QuickActionCard(title: "Buyers", imageName: "person.2.fill", isSymbol: true)
             }
             
             NavigationLink(destination: SellersListView()) {
                 QuickActionCard(title: "Sellers", imageName: "person.badge.plus", isSymbol: true)
             }
-            
+
             NavigationLink(destination: SellerBidsDetailsView()) {
                 QuickActionCard(title: "BIDS", imageName: "gavel.fill", isSymbol: true)
             }
-
+            
             QuickActionCard(title: "Offers", imageName: "tag.fill", isSymbol: true)
         }
     }
@@ -297,4 +299,3 @@ struct SellerHomePageView_Previews: PreviewProvider {
             .environmentObject(SessionStore())
     }
 }
-

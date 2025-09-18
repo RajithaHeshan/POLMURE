@@ -146,7 +146,11 @@ struct BuyerActionsGridView: View {
                 BuyerQuickActionCard(title: "My BIDS", imageName: "gavel.fill")
             }
             
-            BuyerQuickActionCard(title: "Offers", imageName: "tag.fill")
+            NavigationLink(destination:BuyerOfferAcceptView()) {
+                BuyerQuickActionCard(title: "Offers", imageName: "tag.fill")
+            }
+            
+            
         }
     }
 }

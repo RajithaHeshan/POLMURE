@@ -174,8 +174,11 @@ struct QuickActionGridView: View {
             NavigationLink(destination: SellersListView()) {
                 QuickActionCard(title: "Sellers", imageName: "person.badge.plus", isSymbol: true)
             }
+            
+            NavigationLink(destination: SellerBidsDetailsView()) {
+                QuickActionCard(title: "BIDS", imageName: "gavel.fill", isSymbol: true)
+            }
 
-            QuickActionCard(title: "BIDS", imageName: "gavel.fill", isSymbol: true)
             QuickActionCard(title: "Offers", imageName: "tag.fill", isSymbol: true)
         }
     }

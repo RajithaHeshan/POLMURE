@@ -169,9 +169,19 @@ struct MyBidsDetailsView: View {
                 if viewModel.isLoading {
                     ProgressView("Loading Your Bids...")
                 } else if let errorMessage = viewModel.errorMessage {
-                    Text(errorMessage) // Simplified error view
+                    Text(errorMessage)
+                        .multilineTextAlignment(.center)
+                        .padding()
                 } else if viewModel.detailedBids.isEmpty {
-                    Text("No Bids Found") // Simplified empty view
+                    VStack(spacing: 16) {
+                        Image(systemName: "gavel.fill")
+                            .font(.largeTitle)
+                            .foregroundColor(.secondary)
+                        Text("No Bids Found")
+                            .font(.title2)
+                        Text("You haven't placed any bids yet.")
+                            .foregroundColor(.secondary)
+                    }
                 } else {
                     List {
                         ForEach(viewModel.detailedBids) { detail in
@@ -195,7 +205,6 @@ struct MyBidsDetailsView: View {
 
 struct BidDetailRowView: View {
     let detail: BidDetails
-    // We need the viewModel to perform the cancel action
     @ObservedObject var viewModel: MyBidsDetailsViewModel
 
     private var statusColor: Color {
@@ -218,7 +227,6 @@ struct BidDetailRowView: View {
                     .font(.headline)
                     .fontWeight(.bold)
                 Spacer()
-                // We now display the status from the bid object itself
                 Text(detail.myBid.status.rawValue)
                     .font(.caption.bold())
                     .foregroundColor(.white)
@@ -236,9 +244,11 @@ struct BidDetailRowView: View {
                     BidInfoRow(label: "Highest Bid", amount: highestBid.bidAmount, measure: highestBid.measure)
                 }
                 BidInfoRow(label: "Harvest Date", value: detail.property.nextHarvestDate.dateValue().formatted(date: .abbreviated, time: .omitted))
+                
+              
+                BidInfoRow(label: "Est. Harvest", value: "\(detail.property.estimateHarvestUnits) units")
             }
             
-            // This section adds the "Actions" with the Cancel button
             if detail.myBid.status == .pending {
                 Divider()
                 HStack {
@@ -258,7 +268,6 @@ struct BidDetailRowView: View {
     }
 }
 
-// BidInfoRow and Preview structs remain the same as before
 struct BidInfoRow: View {
     let label: String
     let value: String?

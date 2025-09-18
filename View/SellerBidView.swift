@@ -234,3 +234,4 @@ struct SellerBidView_Previews: PreviewProvider {
     }
 }
 
+

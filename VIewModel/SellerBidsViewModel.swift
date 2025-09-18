@@ -1,15 +1,10 @@
-
-//Accept BIDS from Buyer
-
 import Foundation
 import FirebaseFirestore
 import FirebaseAuth
 import Combine
 
-// A struct to hold all the info a seller needs for a single bid
 struct SellerBidInfo: Identifiable {
     var id: String { bid.id ?? UUID().uuidString }
-    
     var bid: Bid
     let buyer: AppUser
     let property: Property
@@ -30,7 +25,6 @@ class SellerBidsViewModel: ObservableObject {
     }
     
     deinit {
-        // Important: Stop listening for changes when the view disappears
         listener?.remove()
     }
     
@@ -41,11 +35,10 @@ class SellerBidsViewModel: ObservableObject {
         }
         
         isLoading = true
-        listener?.remove() // Stop any previous listener
+        listener?.remove()
         
         Task {
             do {
-                // First, find all property IDs that belong to the current seller
                 let propertyIDs = try await fetchSellerPropertyIDs(sellerId: sellerId)
                 
                 if propertyIDs.isEmpty {
@@ -54,7 +47,6 @@ class SellerBidsViewModel: ObservableObject {
                     return
                 }
                 
-                // Set up a real-time listener on the bids collection
                 self.listener = db.collection("bids")
                     .whereField("propertyId", in: propertyIDs)
                     .addSnapshotListener { [weak self] querySnapshot, error in
@@ -63,19 +55,16 @@ class SellerBidsViewModel: ObservableObject {
                             return
                         }
                         
-                        // We need to manually set the ID on each bid
                         let bids = documents.compactMap { doc -> Bid? in
                             var bid = try? doc.data(as: Bid.self)
                             bid?.id = doc.documentID
                             return bid
                         }
                         
-                        // We still need to fetch the related user/property data
                         Task {
                             await self.fetchDetails(for: bids)
                         }
                     }
-                
             } catch {
                 self.errorMessage = error.localizedDescription
                 self.isLoading = false
@@ -86,7 +75,6 @@ class SellerBidsViewModel: ObservableObject {
     
     private func fetchDetails(for bids: [Bid]) async {
         var details: [SellerBidInfo] = []
-        
         do {
             try await withThrowingTaskGroup(of: SellerBidInfo?.self) { group in
                 for bid in bids {
@@ -115,7 +103,6 @@ class SellerBidsViewModel: ObservableObject {
         self.isLoading = false
     }
 
-    // This function now uses the listener for UI updates.
     func confirmBid(bidInfo: SellerBidInfo) {
         guard let bidId = bidInfo.bid.id else { return }
         
@@ -134,7 +121,7 @@ class SellerBidsViewModel: ObservableObject {
         
         let batch = db.batch()
         let bidRef = db.collection("bids").document(bidId)
-        batch.updateData(["status": BidStatus.active.rawValue], forDocument: bidRef)
+        batch.updateData(["status": BidStatus.inactive.rawValue], forDocument: bidRef)
         let transactionRef = db.collection("transactions").document()
         batch.setData(transactionData, forDocument: transactionRef)
         
@@ -143,7 +130,6 @@ class SellerBidsViewModel: ObservableObject {
                 self?.errorMessage = "Failed to confirm bid and create transaction."
                 print("Batch commit failed: \(error)")
             }
-            // No need to update the local array here. The listener does it for us.
         }
     }
     
@@ -154,6 +140,7 @@ class SellerBidsViewModel: ObservableObject {
         return snapshot.documents.map { $0.documentID }
     }
     
+    // THIS IS THE CORRECTED, SAFE FUNCTION
     private func fetchUser(withId userId: String) async throws -> AppUser {
         let docSnapshot = try await db.collection("users").document(userId).getDocument()
 
@@ -175,6 +162,7 @@ class SellerBidsViewModel: ObservableObject {
         return AppUser(id: id, username: username, fullName: fullName, email: email, userType: userType, createdAt: createdAt, mobileNumber: mobileNumber, location: location, selectedPlaceName: selectedPlaceName)
     }
 
+    // THIS IS THE CORRECTED, SAFE FUNCTION
     private func fetchProperty(withId propertyId: String) async throws -> Property {
         let docSnapshot = try await db.collection("properties").document(propertyId).getDocument()
 

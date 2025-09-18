@@ -185,7 +185,20 @@ struct MyBidsDetailsView: View {
                 } else {
                     List {
                         ForEach(viewModel.detailedBids) { detail in
-                            BidDetailRowView(detail: detail, viewModel: viewModel)
+                            BidDetailRowView(detail: detail)
+                                .swipeActions(edge: .trailing) {
+                                    if detail.myBid.status == .pending {
+                                        Button(role: .destructive) {
+                                            // THIS IS THE UPDATED BUTTON ACTION
+                                            // It now runs the async function in a Task.
+                                            Task {
+                                                await viewModel.withdraw(bidDetails: detail)
+                                            }
+                                        } label: {
+                                            Label("Withdraw", systemImage: "trash.fill")
+                                        }
+                                    }
+                                }
                         }
                     }
                     .listStyle(.plain)
@@ -203,20 +216,16 @@ struct MyBidsDetailsView: View {
     }
 }
 
+// All the subviews below are the same, but included for completeness.
 struct BidDetailRowView: View {
     let detail: BidDetails
-    @ObservedObject var viewModel: MyBidsDetailsViewModel
-
+    
     private var statusColor: Color {
         switch detail.myBid.status {
-        case .pending:
-            return .orange
-        case .active:
-            return .green
-        case .cancelled:
-            return .gray
-        case .expired:
-            return .red
+        case .pending: return .orange
+        case .inactive: return .blue
+        case .cancelled: return .gray
+        case .expired: return .red
         }
     }
     
@@ -235,33 +244,14 @@ struct BidDetailRowView: View {
                     .background(statusColor)
                     .clipShape(Capsule())
             }
-            
             Divider()
-            
             VStack(spacing: 8) {
                 BidInfoRow(label: "My Bid", amount: detail.myBid.bidAmount, measure: detail.myBid.measure, isHighlighted: true)
                 if let highestBid = detail.highestBid {
                     BidInfoRow(label: "Highest Bid", amount: highestBid.bidAmount, measure: highestBid.measure)
                 }
                 BidInfoRow(label: "Harvest Date", value: detail.property.nextHarvestDate.dateValue().formatted(date: .abbreviated, time: .omitted))
-                
-              
                 BidInfoRow(label: "Est. Harvest", value: "\(detail.property.estimateHarvestUnits) units")
-            }
-            
-            if detail.myBid.status == .pending {
-                Divider()
-                HStack {
-                    Text("Actions")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                    Spacer()
-                    Button("Cancel Bid") {
-                        viewModel.cancelBid(bidDetails: detail)
-                    }
-                    .buttonStyle(.bordered)
-                    .tint(.red)
-                }
             }
         }
         .padding(.vertical, 8)

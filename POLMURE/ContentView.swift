@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject var sessionStore: SessionStore
+    @Environment(\.scenePhase) var scenePhase
     
     var body: some View {
         ZStack {
@@ -16,6 +17,13 @@ struct ContentView: View {
                 LoginView()
             }
         }
+       
+        .onChange(of: scenePhase) { oldPhase, newPhase in
+            if newPhase == .background {
+                NotificationManager.instance.scheduleNotification()
+            }
+        }
+        
     }
 }
 

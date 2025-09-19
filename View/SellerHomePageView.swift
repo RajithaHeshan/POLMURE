@@ -13,7 +13,6 @@ struct SellerHomePageView: View {
                     Label("Requirement", systemImage: "list.bullet")
                 }
             
-            
             TransactionsView()
                 .tabItem {
                     Label("Transactions", systemImage: "dollarsign.circle")
@@ -50,6 +49,7 @@ struct HomeView: View {
 
 struct HeaderView: View {
     @EnvironmentObject var sessionStore: SessionStore
+    @StateObject private var notificationsViewModel = NotificationsViewModel()
 
     var body: some View {
         HStack {
@@ -66,18 +66,26 @@ struct HeaderView: View {
             .frame(width: 36, height: 36)
             .clipShape(Circle())
             
-            // You can make this dynamic later
-            Text("Hi, Heshan 👋")
+            Text("Hi, \(sessionStore.appUser?.fullName.split(separator: " ").first ?? "User") 👋")
                 .font(.title)
                 .fontWeight(.bold)
             
             Spacer()
             
             HStack(spacing: 20) {
-                Button(action: {}) {
-                    Image(systemName: "bell.fill")
-                        .font(.title3)
-                        .foregroundColor(.black)
+                NavigationLink(destination: NotificationsView()) {
+                    ZStack {
+                        Image(systemName: "bell.fill")
+                            .font(.title3)
+                            .foregroundColor(.black)
+                        
+                        if notificationsViewModel.hasUnreadNotifications {
+                            Circle()
+                                .fill(Color.red)
+                                .frame(width: 10, height: 10)
+                                .offset(x: 10, y: -10)
+                        }
+                    }
                 }
                 
                 Button(action: {
@@ -117,7 +125,7 @@ struct YourPropertiesSection: View {
 struct PropertyCardView: View {
     var body: some View {
         HStack(spacing: 16) {
-            Image(systemName: "photo.fill") // Placeholder
+            Image(systemName: "photo.fill")
                 .resizable()
                 .scaledToFill()
                 .frame(width: 90, height: 150)

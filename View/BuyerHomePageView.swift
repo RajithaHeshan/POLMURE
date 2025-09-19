@@ -8,7 +8,6 @@ struct BuyerHomePageView: View {
                     Label("Home", systemImage: "house.fill")
                 }
             
-           
             TransactionsView()
                 .tabItem {
                     Label("Transactions", systemImage: "dollarsign.circle.fill")
@@ -47,6 +46,7 @@ struct BuyerHomeContentView: View {
 
 struct BuyerHeaderView: View {
     @EnvironmentObject var sessionStore: SessionStore
+    @StateObject private var notificationsViewModel = NotificationsViewModel()
 
     var body: some View {
         HStack {
@@ -55,18 +55,26 @@ struct BuyerHeaderView: View {
                 .foregroundColor(.gray)
             
             VStack(alignment: .leading) {
-                // You can make this dynamic later
-                Text("Hi, Ishan 👋")
+                Text("Hi, \(sessionStore.appUser?.fullName.split(separator: " ").first ?? "User") 👋")
                     .font(.title)
                     .fontWeight(.bold)
             }
             
             Spacer()
             
-            Button(action: {}) {
-                Image(systemName: "bell.fill")
-                    .font(.title3)
-                    .foregroundColor(.black)
+            NavigationLink(destination: NotificationsView()) {
+                ZStack {
+                    Image(systemName: "bell.fill")
+                        .font(.title3)
+                        .foregroundColor(.black)
+                    
+                    if notificationsViewModel.hasUnreadNotifications {
+                        Circle()
+                            .fill(Color.red)
+                            .frame(width: 10, height: 10)
+                            .offset(x: 10, y: -10)
+                    }
+                }
             }
             
             Button(action: {
@@ -143,14 +151,12 @@ struct BuyerActionsGridView: View {
             }
 
             NavigationLink(destination: MyBidsDetailsView()) {
-                BuyerQuickActionCard(title: "My BIDS", imageName: "gavel.fill")
+                BuyerQuickActionCard(title: "My Bids", imageName: "gavel.fill")
             }
             
-            NavigationLink(destination:BuyerOfferAcceptView()) {
+            NavigationLink(destination: BuyerOfferAcceptView()) {
                 BuyerQuickActionCard(title: "Offers", imageName: "tag.fill")
             }
-            
-            
         }
     }
 }
@@ -247,7 +253,6 @@ struct BuyerInformationCard: View {
     }
 }
 
-// MARK: - Preview
 struct BuyerHomePageView_Previews: PreviewProvider {
     static var previews: some View {
         BuyerHomePageView()

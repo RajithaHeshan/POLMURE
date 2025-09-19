@@ -47,24 +47,19 @@ struct HomeView: View {
     }
 }
 
+
 struct HeaderView: View {
     @EnvironmentObject var sessionStore: SessionStore
     @StateObject private var notificationsViewModel = NotificationsViewModel()
 
     var body: some View {
         HStack {
-            ZStack {
-                LinearGradient(
-                    gradient: Gradient(colors: [Color.blue.opacity(0.7), Color.blue]),
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-                Image(systemName: "leaf.fill")
-                    .foregroundColor(.white)
-                    .font(.system(size: 18))
-            }
-            .frame(width: 36, height: 36)
-            .clipShape(Circle())
+            // Replaced the leaf image with the seller's image
+            Image("seller")
+                .resizable()
+                .scaledToFill()
+                .frame(width: 40, height: 40)
+                .clipShape(Circle())
             
             Text("Hi, \(sessionStore.appUser?.fullName.split(separator: " ").first ?? "User") 👋")
                 .font(.title)
@@ -172,25 +167,30 @@ struct PropertyDetailRow: View {
     }
 }
 
+
 struct QuickActionGridView: View {
     let columns = [GridItem(.flexible(), spacing: 16), GridItem(.flexible(), spacing: 16)]
     
     var body: some View {
         LazyVGrid(columns: columns, spacing: 16) {
             NavigationLink(destination: BuyersListView()) {
-                QuickActionCard(title: "Buyers", imageName: "person.2.fill", isSymbol: true)
+                // (2) Use the buyer image
+                QuickActionCard(title: "Buyers", imageName: "Buyer", isSymbol: false)
             }
             
             NavigationLink(destination: SellersListView()) {
-                QuickActionCard(title: "Sellers", imageName: "person.badge.plus", isSymbol: true)
+                // (1) Use the seller image
+                QuickActionCard(title: "Sellers", imageName: "seller", isSymbol: false)
             }
 
             NavigationLink(destination: SellerBidsDetailsView()) {
-                QuickActionCard(title: "BIDS", imageName: "gavel.fill", isSymbol: true)
+                // (3) Use the bids image
+                QuickActionCard(title: "BIDS", imageName: "Bids", isSymbol: false)
             }
             
             NavigationLink(destination: MyOffersDetailsView()) {
-                QuickActionCard(title: "Offers", imageName: "tag.fill", isSymbol: true)
+                // (4) Use the offers image
+                QuickActionCard(title: "Offers", imageName: "offers", isSymbol: false)
             }
         }
     }
@@ -211,7 +211,8 @@ struct QuickActionCard: View {
             } else {
                 Image(imageName)
                     .resizable()
-                    .scaledToFill()
+                    .scaledToFit() // Changed to scaledToFit to avoid stretching
+                    .padding(20) // Added padding to give the image some space
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             
@@ -225,6 +226,8 @@ struct QuickActionCard: View {
         .shadow(color: .black.opacity(0.05), radius: 10, y: 5)
     }
 }
+
+// --- The rest of the file is unchanged ---
 
 struct CustomSegmentedPicker: View {
     @State private var selectedIndex = 0

@@ -15,7 +15,5 @@
 	</array>
 	<key>GIDClientID</key>
 	<string>1013273912582-9jhjqs1b3ks7vqr33ri5hvm1jpfgbjmj.apps.googleusercontent.com</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>We need your location to help you pinpoint your property on the map</string>
 </dict>
 </plist>

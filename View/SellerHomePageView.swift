@@ -54,7 +54,6 @@ struct HeaderView: View {
 
     var body: some View {
         HStack {
-            // Replaced the leaf image with the seller's image
             Image("seller")
                 .resizable()
                 .scaledToFill()
@@ -96,7 +95,10 @@ struct HeaderView: View {
     }
 }
 
+
 struct YourPropertiesSection: View {
+    @StateObject private var viewModel = UserPropertiesViewModel()
+    
     var body: some View {
         VStack(spacing: 16) {
             HStack {
@@ -112,15 +114,38 @@ struct YourPropertiesSection: View {
                     .font(.subheadline)
                 }
             }
-            PropertyCardView()
+            
+            if viewModel.properties.isEmpty {
+                // Show a message if the seller has no properties
+                Text("You haven't added any properties yet.")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .frame(height: 150)
+                    .frame(maxWidth: .infinity)
+                    .background(Color.white.opacity(0.5))
+                    .cornerRadius(16)
+            } else {
+                // Show a swipeable list of the seller's properties
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 16) {
+                        ForEach(viewModel.properties) { property in
+                            PropertyCardView(property: property)
+                        }
+                    }
+                }
+            }
         }
     }
 }
 
+
 struct PropertyCardView: View {
+    let property: Property
+    
     var body: some View {
         HStack(spacing: 16) {
-            Image(systemName: "photo.fill")
+            // Using the "seller" image from your assets, as requested
+            Image("seller")
                 .resizable()
                 .scaledToFill()
                 .frame(width: 90, height: 150)
@@ -128,27 +153,30 @@ struct PropertyCardView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 10))
 
             VStack(alignment: .leading, spacing: 8) {
-                Text("Heshan Dunumala")
+                // All the text is now dynamic, coming from the property object
+                Text(property.sellerName)
                     .font(.headline)
                     .fontWeight(.bold)
                 
-                PropertyDetailRow(key: "Property Name:", value: "Warakapola 1")
-                PropertyDetailRow(key: "City:", value: "Warakapola")
-                PropertyDetailRow(key: "Estimate Harvest:", value: "2500 kg")
-                PropertyDetailRow(key: "Next Harvest:", value: "2025/10/15")
-                PropertyDetailRow(key: "Highest Bid:", value: "LKR 550.00")
+                PropertyDetailRow(key: "Property Name:", value: property.propertyName)
+                PropertyDetailRow(key: "City:", value: property.cityName)
+                PropertyDetailRow(key: "Estimate Harvest:", value: "\(property.estimateHarvestUnits) units")
+                PropertyDetailRow(key: "Next Harvest:", value: "\(property.daysUntilNextHarvest) days")
                 PropertyDetailRow(key: "Status:", value: "Available", valueColor: .green)
             }
             .font(.footnote)
             
             Spacer()
         }
+        .frame(width: 320)
         .padding()
-        .background(Color.yellow.opacity(0.1))
+        .background(Color.white)
         .cornerRadius(16)
         .shadow(color: .black.opacity(0.05), radius: 10, y: 5)
     }
 }
+
+
 
 struct PropertyDetailRow: View {
     let key: String
@@ -167,29 +195,24 @@ struct PropertyDetailRow: View {
     }
 }
 
-
 struct QuickActionGridView: View {
     let columns = [GridItem(.flexible(), spacing: 16), GridItem(.flexible(), spacing: 16)]
     
     var body: some View {
         LazyVGrid(columns: columns, spacing: 16) {
             NavigationLink(destination: BuyersListView()) {
-                // (2) Use the buyer image
                 QuickActionCard(title: "Buyers", imageName: "Buyer", isSymbol: false)
             }
             
             NavigationLink(destination: SellersListView()) {
-                // (1) Use the seller image
                 QuickActionCard(title: "Sellers", imageName: "seller", isSymbol: false)
             }
 
             NavigationLink(destination: SellerBidsDetailsView()) {
-                // (3) Use the bids image
                 QuickActionCard(title: "BIDS", imageName: "Bids", isSymbol: false)
             }
             
             NavigationLink(destination: MyOffersDetailsView()) {
-                // (4) Use the offers image
                 QuickActionCard(title: "Offers", imageName: "offers", isSymbol: false)
             }
         }
@@ -197,37 +220,35 @@ struct QuickActionGridView: View {
 }
 
 struct QuickActionCard: View {
-    let title: String
-    let imageName: String
-    let isSymbol: Bool
-
-    var body: some View {
-        VStack {
-            if isSymbol {
-                Image(systemName: imageName)
-                    .font(.system(size: 40))
-                    .foregroundColor(.blue)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else {
-                Image(imageName)
-                    .resizable()
-                    .scaledToFit() // Changed to scaledToFit to avoid stretching
-                    .padding(20) // Added padding to give the image some space
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+        let title: String
+        let imageName: String
+        let isSymbol: Bool
+    
+        var body: some View {
+            VStack {
+                if isSymbol {
+                    Image(systemName: imageName)
+                        .font(.system(size: 40)) //
+                        .foregroundColor(.blue)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    Image(imageName)
+                        .resizable()
+                        .scaledToFit() // Changed to scaledToFit to avoid stretching
+                        .padding(20) // Added padding to give the image some space
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
+    
+                Text(title)
+                    .font(.headline)
+                    .padding(.bottom, 12)
             }
-            
-            Text(title)
-                .font(.headline)
-                .padding(.bottom, 12)
+            .frame(height: 140)
+            .background(Color.white)
+            .cornerRadius(16)
+            .shadow(color: .black.opacity(0.05), radius: 10, y: 5)
         }
-        .frame(height: 140)
-        .background(Color.white)
-        .cornerRadius(16)
-        .shadow(color: .black.opacity(0.05), radius: 10, y: 5)
-    }
-}
-
-// --- The rest of the file is unchanged ---
+ }
 
 struct CustomSegmentedPicker: View {
     @State private var selectedIndex = 0

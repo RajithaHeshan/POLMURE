@@ -136,28 +136,27 @@ struct RecentViewCard: View {
     }
 }
 
-
 struct BuyerActionsGridView: View {
     let columns = [GridItem(.flexible(), spacing: 16), GridItem(.flexible(), spacing: 16)]
-    
     var body: some View {
         LazyVGrid(columns: columns, spacing: 16) {
             NavigationLink(destination: BuyersListView()) {
-                BuyerQuickActionCard(title: "Buyers", imageName: "person.2.fill")
+                QuickActionCard(title: "Buyers", imageName: "Buyer", isSymbol: false)
             }
             
             NavigationLink(destination: SellersListView()) {
-                BuyerQuickActionCard(title: "Sellers", imageName: "person.badge.plus")
+                QuickActionCard(title: "Sellers", imageName: "seller", isSymbol: false)
             }
 
-            NavigationLink(destination: MyBidsDetailsView()) {
-                BuyerQuickActionCard(title: "My Bids", imageName: "gavel.fill")
+            NavigationLink(destination: SellerBidsDetailsView()) {
+                QuickActionCard(title: "BIDS", imageName: "Bids", isSymbol: false)
             }
             
-            NavigationLink(destination: BuyerOfferAcceptView()) {
-                BuyerQuickActionCard(title: "Offers", imageName: "tag.fill")
+            NavigationLink(destination: MyOffersDetailsView()) {
+                QuickActionCard(title: "Offers", imageName: "offers", isSymbol: false)
             }
         }
+    
     }
 }
 

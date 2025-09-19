@@ -9,9 +9,16 @@ struct LoginView: View {
         NavigationStack {
             VStack(spacing: 20) {
                 
-                Image(systemName: "lock.shield.fill")
-                    .font(.system(size: 80))
-                    .foregroundColor(.accentColor)
+//                Image(systemName:"lock.shield.fill")
+//                    .font(.system(size: 80))
+//                    .foregroundColor(.accentColor)
+//                    .padding(.bottom, 20)
+                
+                Image("seller")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 60, height: 60)
+                    .clipShape(Circle())
                     .padding(.bottom, 20)
                 
                 Text("Welcome Back")
